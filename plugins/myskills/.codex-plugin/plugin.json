@@ -1,0 +1,15 @@
+{
+  "name": "myskills",
+  "version": "0.1.0",
+  "description": "Minimal plugin for packaging and distributing personal skills through a repo marketplace.",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "My Skills",
+    "shortDescription": "Personal skills packaged as a minimal Codex plugin",
+    "developerName": "jun",
+    "category": "Productivity",
+    "capabilities": [
+      "Read"
+    ]
+  }
+}

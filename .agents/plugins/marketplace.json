@@ -1,0 +1,20 @@
+{
+  "name": "myskills",
+  "interface": {
+    "displayName": "My Skills"
+  },
+  "plugins": [
+    {
+      "name": "myskills",
+      "source": {
+        "source": "local",
+        "path": "./plugins/myskills"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
