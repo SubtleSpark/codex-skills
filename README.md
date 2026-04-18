@@ -2,10 +2,7 @@
 
 `myskills` 是一个最小的 Codex repo marketplace。
 
-它的目标只有两个：
-
-- 通过 Add Market 导入这个仓库
-- 在一个 plugin 里管理并分发你的 skills
+这个仓库当前只做一件事：通过 Add Market 导入一个叫 `myskills` 的 plugin，并在这个 plugin 里分发你的 skills。
 
 ## 核心概念
 
@@ -13,21 +10,25 @@
 - `plugin`：安装单元。把一个或多个 skill 打包给 Codex 安装。
 - `marketplace`：导入入口。告诉 Codex 这个仓库里有哪些 plugin 可以装。
 
-## 最小目录结构
+## 当前目录结构
 
 ```text
 myskills/
 ├── .agents/
 │   └── plugins/
 │       └── marketplace.json          # Add Market 入口；列出当前仓库可安装的 plugin
-├── README.md                         # 仓库说明；目录树、文件职责、后续新增 skill 的方法都写在这里
+├── README.md                         # 仓库说明；只解释最小结构和当前已封装的 skill
 └── plugins/
     └── myskills/
         ├── .codex-plugin/
         │   └── plugin.json           # plugin manifest；定义 plugin 身份并指向 skills 目录
         └── skills/
-            └── starter/
-                └── SKILL.md          # 最小示例 skill；用于验证 plugin 安装和 skill 识别链路
+            └── callgraph-analyzer/
+                ├── SKILL.md                 # skill 入口；Codex 通过它识别这个 skill
+                ├── generate_callgraph_json.sh
+                ├── main.go
+                ├── mermaid.config.json
+                └── mmd2svg.sh               # 从原目录原样复制过来的脚本与代码
 ```
 
 ## 这几个文件分别做什么
@@ -56,11 +57,16 @@ Codex 识别一个 plugin，靠的是这个文件，而不是 `README` 或目录
 - 声明这个 plugin 的 `skills` 在哪里
 - 提供安装界面需要的最小展示信息
 
-### `/plugins/myskills/skills/starter/SKILL.md`
+### `/plugins/myskills/skills/callgraph-analyzer/SKILL.md`
 
-这是一个最小 skill。
+这是当前真正被封装进 plugin 的 skill。
 
-它的职责不是提供复杂能力，而是验证一件事：这个 plugin 安装后，Codex 能正确识别其中的 skill。
+Codex 是否识别这个 skill，核心看两件事：
+
+- 它在 `skills/<skill-name>/` 目录下
+- 目录里有合法的 `SKILL.md`
+
+这个 skill 目录里的其他脚本和代码文件，都是从原目录复制过来的实现资源。
 
 ## 现在这套结构怎么理解
 
@@ -72,6 +78,19 @@ Codex 识别一个 plugin，靠的是这个文件，而不是 `README` 或目录
 4. `myskills` plugin 里打包的 skills 会一起进入 Codex。
 
 所以，在 Add Market 这条链路里，最小安装单位是 `plugin`，不是裸 `skill`。
+
+一句话记忆：
+
+- marketplace 管 plugin
+- plugin 管 skills
+
+## 当前已封装的 skill
+
+- `callgraph-analyzer`
+
+它是从 `/Users/jun/Downloads/callgraph-analyzer` 原样复制进来的。
+
+这次只做了复制和封装，没有改它内部的命令、路径写法或实现逻辑。所以你会看到它里面仍然保留原来的 `.claude/skills/...` 路径写法；这属于后续兼容性优化，不在这次处理范围内。
 
 ## 如果以后要新增一个 skill
 
