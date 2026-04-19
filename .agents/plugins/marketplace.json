@@ -5,10 +5,10 @@
   },
   "plugins": [
     {
-      "name": "call-graph-analyzer",
+      "name": "go-call-graph-analyzer",
       "source": {
         "source": "local",
-        "path": "./plugins/call-graph-analyzer"
+        "path": "./plugins/go-call-graph-analyzer"
       },
       "policy": {
         "installation": "AVAILABLE",

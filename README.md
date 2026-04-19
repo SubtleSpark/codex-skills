@@ -5,7 +5,7 @@
 当前内容：
 
 - marketplace：`myskills`
-- plugin：`Call Graph Analyzer`（`call-graph-analyzer`）
+- plugin：`Go Call Graph Analyzer`（`go-call-graph-analyzer`）
 
 ## 核心概念
 
@@ -22,7 +22,7 @@ myskills/
 │       └── marketplace.json          # Add Market 入口；列出当前仓库可安装的 plugin
 ├── README.md                         # 仓库说明；只解释最小结构和当前已封装的 skill
 └── plugins/
-    └── call-graph-analyzer/
+    └── go-call-graph-analyzer/
         ├── .codex-plugin/
         │   └── plugin.json           # plugin manifest；定义 plugin 身份并指向 skills 目录
         └── skills/
@@ -45,7 +45,7 @@ Add Market 导入的是这个文件代表的 marketplace，而不是直接扫你
 - 列出当前仓库有哪些 plugin
 - 告诉 Codex 每个 plugin 在仓库里的路径
 
-### `/plugins/call-graph-analyzer/.codex-plugin/plugin.json`
+### `/plugins/go-call-graph-analyzer/.codex-plugin/plugin.json`
 
 这是 plugin 的入口 manifest。
 
@@ -57,7 +57,7 @@ Codex 识别一个 plugin，靠的是这个文件，而不是 `README` 或目录
 - 声明这个 plugin 的 `skills` 在哪里
 - 提供安装界面需要的最小展示信息
 
-### `/plugins/call-graph-analyzer/skills/callgraph-analyzer/SKILL.md`
+### `/plugins/go-call-graph-analyzer/skills/callgraph-analyzer/SKILL.md`
 
 这是当前真正被封装进 plugin 的 skill。
 
@@ -71,7 +71,7 @@ Codex 是否识别这个 skill，核心看两件事：
 ## 当前对象
 
 - marketplace：`myskills`
-- plugin：`Call Graph Analyzer`（`call-graph-analyzer`）
+- plugin：`Go Call Graph Analyzer`（`go-call-graph-analyzer`）
 - skill：`callgraph-analyzer`
 
 一句话记忆：
@@ -92,7 +92,7 @@ Codex 是否识别这个 skill，核心看两件事：
 直接在这个目录下新增即可：
 
 ```text
-plugins/call-graph-analyzer/skills/<your-skill-name>/SKILL.md
+plugins/go-call-graph-analyzer/skills/<your-skill-name>/SKILL.md
 ```
 
 约定：
