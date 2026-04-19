@@ -5,10 +5,10 @@
   },
   "plugins": [
     {
-      "name": "myskills",
+      "name": "call-graph-analyzer",
       "source": {
         "source": "local",
-        "path": "./plugins/myskills"
+        "path": "./plugins/call-graph-analyzer"
       },
       "policy": {
         "installation": "AVAILABLE",

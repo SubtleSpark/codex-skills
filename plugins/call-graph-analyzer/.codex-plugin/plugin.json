@@ -1,0 +1,15 @@
+{
+  "name": "call-graph-analyzer",
+  "version": "0.1.0",
+  "description": "Static call graph analysis skill packaged as a Codex plugin.",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Call Graph Analyzer",
+    "shortDescription": "Static call graph analysis skill packaged as a Codex plugin",
+    "developerName": "jun",
+    "category": "Productivity",
+    "capabilities": [
+      "Read"
+    ]
+  }
+}

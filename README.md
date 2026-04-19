@@ -2,7 +2,10 @@
 
 `myskills` 是一个最小的 Codex repo marketplace。
 
-这个仓库当前只做一件事：通过 Add Market 导入一个叫 `myskills` 的 plugin，并在这个 plugin 里分发你的 skills。
+当前内容：
+
+- marketplace：`myskills`
+- plugin：`Call Graph Analyzer`（`call-graph-analyzer`）
 
 ## 核心概念
 
@@ -19,16 +22,13 @@ myskills/
 │       └── marketplace.json          # Add Market 入口；列出当前仓库可安装的 plugin
 ├── README.md                         # 仓库说明；只解释最小结构和当前已封装的 skill
 └── plugins/
-    └── myskills/
+    └── call-graph-analyzer/
         ├── .codex-plugin/
         │   └── plugin.json           # plugin manifest；定义 plugin 身份并指向 skills 目录
         └── skills/
             └── callgraph-analyzer/
                 ├── SKILL.md                 # skill 入口；Codex 通过它识别这个 skill
-                ├── generate_callgraph_json.sh
-                ├── main.go
-                ├── mermaid.config.json
-                └── mmd2svg.sh               # 从原目录原样复制过来的脚本与代码
+                └── ...                      # 其他从原目录复制过来的源码和脚本
 ```
 
 ## 这几个文件分别做什么
@@ -45,7 +45,7 @@ Add Market 导入的是这个文件代表的 marketplace，而不是直接扫你
 - 列出当前仓库有哪些 plugin
 - 告诉 Codex 每个 plugin 在仓库里的路径
 
-### `/plugins/myskills/.codex-plugin/plugin.json`
+### `/plugins/call-graph-analyzer/.codex-plugin/plugin.json`
 
 这是 plugin 的入口 manifest。
 
@@ -57,7 +57,7 @@ Codex 识别一个 plugin，靠的是这个文件，而不是 `README` 或目录
 - 声明这个 plugin 的 `skills` 在哪里
 - 提供安装界面需要的最小展示信息
 
-### `/plugins/myskills/skills/callgraph-analyzer/SKILL.md`
+### `/plugins/call-graph-analyzer/skills/callgraph-analyzer/SKILL.md`
 
 这是当前真正被封装进 plugin 的 skill。
 
@@ -68,16 +68,11 @@ Codex 是否识别这个 skill，核心看两件事：
 
 这个 skill 目录里的其他脚本和代码文件，都是从原目录复制过来的实现资源。
 
-## 现在这套结构怎么理解
+## 当前对象
 
-最准确的理解是：
-
-1. 你通过 Add Market 导入的是这个仓库里的 marketplace。
-2. marketplace 暴露一个可安装的 plugin：`myskills`。
-3. 你安装的是 `myskills` 这个 plugin。
-4. `myskills` plugin 里打包的 skills 会一起进入 Codex。
-
-所以，在 Add Market 这条链路里，最小安装单位是 `plugin`，不是裸 `skill`。
+- marketplace：`myskills`
+- plugin：`Call Graph Analyzer`（`call-graph-analyzer`）
+- skill：`callgraph-analyzer`
 
 一句话记忆：
 
@@ -97,7 +92,7 @@ Codex 是否识别这个 skill，核心看两件事：
 直接在这个目录下新增即可：
 
 ```text
-plugins/myskills/skills/<your-skill-name>/SKILL.md
+plugins/call-graph-analyzer/skills/<your-skill-name>/SKILL.md
 ```
 
 约定：
