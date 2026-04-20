@@ -1,7 +1,7 @@
 {
-  "name": "myskills",
+  "name": "codex-skills",
   "interface": {
-    "displayName": "My Skills"
+    "displayName": "Codex Skills"
   },
   "plugins": [
     {

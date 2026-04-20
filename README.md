@@ -1,10 +1,10 @@
-# myskills
+# codex-skills
 
-`myskills` 是一个最小的 Codex repo marketplace。
+`codex-skills` 是一个最小的 Codex repo marketplace。
 
 当前内容：
 
-- marketplace：`myskills`
+- marketplace：`codex-skills`
 - plugin：`Go Call Graph Analyzer`（`go-call-graph-analyzer`）
 - plugin：`Java Call Graph Analyzer`（`java-call-graph-analyzer`）
 
@@ -17,7 +17,7 @@
 ## 当前目录结构
 
 ```text
-myskills/
+codex-skills/
 ├── .agents/
 │   └── plugins/
 │       └── marketplace.json
@@ -37,7 +37,7 @@ myskills/
 
 ## 当前对象
 
-- marketplace：`myskills`
+- marketplace：`codex-skills`
 - plugin：`go-call-graph-analyzer`
 - plugin：`java-call-graph-analyzer`
 - skill：`callgraph-analyzer`
