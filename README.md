@@ -6,6 +6,7 @@
 
 - marketplace：`myskills`
 - plugin：`Go Call Graph Analyzer`（`go-call-graph-analyzer`）
+- plugin：`Java Call Graph Analyzer`（`java-call-graph-analyzer`）
 
 ## 核心概念
 
@@ -19,95 +20,25 @@
 myskills/
 ├── .agents/
 │   └── plugins/
-│       └── marketplace.json          # Add Market 入口；列出当前仓库可安装的 plugin
-├── README.md                         # 仓库说明；只解释最小结构和当前已封装的 skill
+│       └── marketplace.json
+├── README.md
 └── plugins/
-    └── go-call-graph-analyzer/
-        ├── .codex-plugin/
-        │   └── plugin.json           # plugin manifest；定义 plugin 身份并指向 skills 目录
-        └── skills/
-            └── callgraph-analyzer/
-                ├── SKILL.md                 # skill 入口；Codex 通过它识别这个 skill
-                └── ...                      # 其他从原目录复制过来的源码和脚本
+    ├── go-call-graph-analyzer/
+    │   ├── .codex-plugin/plugin.json
+    │   └── skills/callgraph-analyzer/
+    │       ├── SKILL.md
+    │       └── ...
+    └── java-call-graph-analyzer/
+        ├── .codex-plugin/plugin.json
+        └── skills/java-callgraph-analyzer/
+            ├── SKILL.md
+            └── ...
 ```
-
-## 这几个文件分别做什么
-
-### `/.agents/plugins/marketplace.json`
-
-这是仓库级 marketplace 清单。
-
-Add Market 导入的是这个文件代表的 marketplace，而不是直接扫你的 `skills/` 目录。
-
-它的职责是：
-
-- 给这个 marketplace 起名字
-- 列出当前仓库有哪些 plugin
-- 告诉 Codex 每个 plugin 在仓库里的路径
-
-### `/plugins/go-call-graph-analyzer/.codex-plugin/plugin.json`
-
-这是 plugin 的入口 manifest。
-
-Codex 识别一个 plugin，靠的是这个文件，而不是 `README` 或目录名。
-
-它的职责是：
-
-- 声明 plugin 名字和基本信息
-- 声明这个 plugin 的 `skills` 在哪里
-- 提供安装界面需要的最小展示信息
-
-### `/plugins/go-call-graph-analyzer/skills/callgraph-analyzer/SKILL.md`
-
-这是当前真正被封装进 plugin 的 skill。
-
-Codex 是否识别这个 skill，核心看两件事：
-
-- 它在 `skills/<skill-name>/` 目录下
-- 目录里有合法的 `SKILL.md`
-
-这个 skill 目录里的其他脚本和代码文件，都是从原目录复制过来的实现资源。
 
 ## 当前对象
 
 - marketplace：`myskills`
-- plugin：`Go Call Graph Analyzer`（`go-call-graph-analyzer`）
+- plugin：`go-call-graph-analyzer`
+- plugin：`java-call-graph-analyzer`
 - skill：`callgraph-analyzer`
-
-一句话记忆：
-
-- marketplace 管 plugin
-- plugin 管 skills
-
-## 当前已封装的 skill
-
-- `callgraph-analyzer`
-
-它是从 `/Users/jun/Downloads/callgraph-analyzer` 原样复制进来的。
-
-这次只做了复制和封装，没有改它内部的命令、路径写法或实现逻辑。所以你会看到它里面仍然保留原来的 `.claude/skills/...` 路径写法；这属于后续兼容性优化，不在这次处理范围内。
-
-## 如果以后要新增一个 skill
-
-直接在这个目录下新增即可：
-
-```text
-plugins/go-call-graph-analyzer/skills/<your-skill-name>/SKILL.md
-```
-
-约定：
-
-- skill 目录名使用 kebab-case
-- `SKILL.md` 里的 `name` 与目录名保持一致最稳妥
-- 一个 skill 目录只做一件事，避免把很多不相关流程塞进同一个 skill
-
-## 本地 authoring 和 Add Market 分发的区别
-
-有两种常见用法：
-
-- 本地 authoring：把 skills 直接放进仓库里的 `.agents/skills/`
-- Add Market 分发：把 skills 打进 plugin，然后通过 marketplace 安装
-
-这个仓库当前选择的是第二种，因为目标是 Add Market 导入。
-
-如果你只是想在某个项目里本地试验 skill，而不需要 marketplace，确实可以只有 `.agents/skills/`，不需要 plugin。
+- skill：`java-callgraph-analyzer`
