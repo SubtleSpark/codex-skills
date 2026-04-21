@@ -26,7 +26,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -35,7 +34,7 @@ public class JavaSourceCallGraphExporter {
     public static void main(String[] args) throws Exception {
         Map<String, String> cli = parseArgs(args);
         Path projectDir = Paths.get(required(cli, "project")).toAbsolutePath().normalize();
-        Path output = Paths.get(cli.getOrDefault("output", projectDir.resolve(".tmp/callgraph-java.json").toString()));
+        Path output = Paths.get(cli.getOrDefault("output", projectDir.resolve(".tmp/callgraph-java.jsonl").toString()));
         String classpath = cli.getOrDefault("classpath", "");
         List<String> includePrefixes = splitCsv(cli.getOrDefault("include-prefix", ""));
 
@@ -52,7 +51,6 @@ public class JavaSourceCallGraphExporter {
         try (StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, StandardCharsets.UTF_8)) {
             Iterable<? extends JavaFileObject> units = fileManager.getJavaFileObjectsFromPaths(javaFiles);
             List<String> options = new ArrayList<>();
-            options.add("-proc:none");
             options.add("-Xlint:none");
             if (!classpath.isBlank()) {
                 options.add("-classpath");
@@ -69,9 +67,9 @@ public class JavaSourceCallGraphExporter {
                 collector.scan(unit, null);
             }
 
-            writeJson(output, collector.toJsonMap(projectDir.toString()));
-            System.out.println("Generated callgraph JSON: " + output);
-            System.out.println("Nodes: " + collector.nodeCount() + ", Edges: " + collector.edgeCount());
+            writeJsonl(output, collector.toJsonlLines());
+            System.out.println("Generated callgraph JSONL: " + output);
+            System.out.println("Edges: " + collector.edgeCount());
         }
     }
 
@@ -84,11 +82,12 @@ public class JavaSourceCallGraphExporter {
         }
     }
 
-    private static void writeJson(Path output, Map<String, Object> json) throws IOException {
+    private static void writeJsonl(Path output, List<String> lines) throws IOException {
         if (output.getParent() != null) {
             Files.createDirectories(output.getParent());
         }
-        Files.writeString(output, toJson(json), StandardCharsets.UTF_8);
+        String content = lines.isEmpty() ? "" : String.join(System.lineSeparator(), lines) + System.lineSeparator();
+        Files.writeString(output, content, StandardCharsets.UTF_8);
     }
 
     private static String required(Map<String, String> args, String key) {
@@ -126,21 +125,8 @@ public class JavaSourceCallGraphExporter {
         return out;
     }
 
-    private static String toJson(Object obj) {
-        if (obj == null) return "null";
-        if (obj instanceof String s) return '"' + escape(s) + '"';
-        if (obj instanceof Number || obj instanceof Boolean) return obj.toString();
-        if (obj instanceof Map<?, ?> map) {
-            return map.entrySet().stream()
-                    .map(e -> '"' + escape(String.valueOf(e.getKey())) + '"' + ":" + toJson(e.getValue()))
-                    .collect(Collectors.joining(",", "{", "}"));
-        }
-        if (obj instanceof Iterable<?> it) {
-            List<String> items = new ArrayList<>();
-            for (Object x : it) items.add(toJson(x));
-            return items.stream().collect(Collectors.joining(",", "[", "]"));
-        }
-        return '"' + escape(String.valueOf(obj)) + '"';
+    private static String edgeJson(String from, String to) {
+        return "{\"from\":\"" + escape(from) + "\",\"to\":\"" + escape(to) + "\"}";
     }
 
     private static String escape(String s) {
@@ -156,7 +142,6 @@ public class JavaSourceCallGraphExporter {
         private final Trees trees;
         private final List<String> includePrefixes;
         private final Deque<String> currentMethod = new ArrayDeque<>();
-        private final Map<String, Map<String, Object>> nodes = new LinkedHashMap<>();
         private final Set<String> edges = new LinkedHashSet<>();
 
         CallGraphCollector(Trees trees, List<String> includePrefixes) {
@@ -170,7 +155,6 @@ public class JavaSourceCallGraphExporter {
             String methodId = methodId(el);
             if (methodId != null) {
                 currentMethod.push(methodId);
-                addNode(methodId, el);
             }
             try {
                 return super.visitMethod(node, unused);
@@ -188,44 +172,23 @@ public class JavaSourceCallGraphExporter {
             Element calleeElement = trees.getElement(new TreePath(getCurrentPath(), node.getMethodSelect()));
             String callee = methodId(calleeElement);
             if (callee != null && include(caller) && include(callee)) {
-                addNode(callee, calleeElement);
                 edges.add(caller + "\u0000" + callee);
             }
             return super.visitMethodInvocation(node, unused);
         }
 
-        int nodeCount() { return nodes.size(); }
         int edgeCount() { return edges.size(); }
 
-        Map<String, Object> toJsonMap(String projectDir) {
-            List<Map<String, Object>> edgeList = edges.stream().map(e -> {
-                String[] parts = e.split("\u0000", 2);
-                Map<String, Object> m = new LinkedHashMap<>();
-                m.put("from", parts[0]);
-                m.put("to", parts[1]);
-                return m;
-            }).collect(Collectors.toList());
-
-            Map<String, Object> meta = new LinkedHashMap<>();
-            meta.put("tool", "jdk-source-analyzer");
-            meta.put("mode", "static-source");
-            meta.put("projectDir", projectDir);
-
-            Map<String, Object> root = new LinkedHashMap<>();
-            root.put("meta", meta);
-            root.put("nodes", new ArrayList<>(nodes.values()));
-            root.put("edges", edgeList);
-            return root;
-        }
-
-        private void addNode(String id, Element el) {
-            if (nodes.containsKey(id)) return;
-            Map<String, Object> m = new LinkedHashMap<>();
-            m.put("id", id);
-            String owner = ownerName(el);
-            m.put("class", owner);
-            m.put("method", methodName(el));
-            nodes.put(id, m);
+        List<String> toJsonlLines() {
+            List<String> lines = new ArrayList<>();
+            for (String edge : edges) {
+                int separator = edge.indexOf('\u0000');
+                if (separator < 0) {
+                    continue;
+                }
+                lines.add(edgeJson(edge.substring(0, separator), edge.substring(separator + 1)));
+            }
+            return lines;
         }
 
         private boolean include(String methodId) {
@@ -238,14 +201,16 @@ public class JavaSourceCallGraphExporter {
 
         private static String ownerName(Element el) {
             Element encl = el == null ? null : el.getEnclosingElement();
-            if (encl instanceof TypeElement t) {
+            if (encl instanceof TypeElement) {
+                TypeElement t = (TypeElement) encl;
                 return t.getQualifiedName().toString();
             }
             return "<unknown>";
         }
 
         private static String methodName(Element el) {
-            if (el instanceof ExecutableElement exe) {
+            if (el instanceof ExecutableElement) {
+                ExecutableElement exe = (ExecutableElement) el;
                 String params = exe.getParameters().stream()
                         .map(v -> v.asType().toString())
                         .collect(Collectors.joining(","));
@@ -259,7 +224,7 @@ public class JavaSourceCallGraphExporter {
                 return null;
             }
             String owner = ownerName(el);
-            if (Objects.equals(owner, "<unknown>")) {
+            if ("<unknown>".equals(owner)) {
                 return null;
             }
             return owner + "#" + methodName(el);

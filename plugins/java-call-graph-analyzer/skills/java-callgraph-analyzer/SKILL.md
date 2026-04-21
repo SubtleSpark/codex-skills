@@ -1,14 +1,14 @@
 ---
 name: java-callgraph-analyzer
-description: 零入侵分析 Java 源码调用链，生成 JSON、Mermaid 和 SVG。
+description: 零入侵分析 Java 源码调用链，生成 edge-only JSONL、Mermaid 和 SVG。
 ---
 
 # Java Call Graph Analyzer
 
 零入侵方式分析 Java 项目调用链：
 
-1. 用 JDK 内置编译器 API 扫描源码并导出 `callgraph.json`
-2. 将 JSON 转成 Mermaid
+1. 用 JDK 内置编译器 API 扫描源码并导出 edge-only `callgraph.jsonl`
+2. 将 JSONL 转成 Mermaid
 3. 将 Mermaid 转成 SVG
 
 ## 前置依赖
@@ -18,10 +18,10 @@ description: 零入侵分析 Java 源码调用链，生成 JSON、Mermaid 和 SV
 
 ## 使用步骤
 
-### 1) 生成 callgraph JSON（关键步骤）
+### 1) 生成 callgraph JSONL（关键步骤）
 
 ```bash
-plugins/java-call-graph-analyzer/skills/java-callgraph-analyzer/generate_callgraph_json.sh \
+plugins/java-call-graph-analyzer/skills/java-callgraph-analyzer/generate_callgraph_jsonl.sh \
   <项目目录> \
   [输出文件] \
   [classpath] \
@@ -30,21 +30,21 @@ plugins/java-call-graph-analyzer/skills/java-callgraph-analyzer/generate_callgra
 
 参数：
 - `<项目目录>`：要分析的 Java 源码根目录
-- `[输出文件]`：默认 `.tmp/callgraph-java.json`
+- `[输出文件]`：默认 `.tmp/callgraph-java.jsonl`
 - `[classpath]`：可选，编译解析依赖路径（`:` 分隔）
 - `[include-prefix]`：可选，按方法全名做前缀过滤，多个用逗号
 
 > 说明：该步骤不要求改动被分析项目，不要求在目标项目里嵌入 POM。
 
-### 2) JSON 转 Mermaid
+### 2) JSONL 转 Mermaid
 
 ```bash
-plugins/java-call-graph-analyzer/skills/java-callgraph-analyzer/json_to_mermaid.sh \
-  [json文件] \
+plugins/java-call-graph-analyzer/skills/java-callgraph-analyzer/jsonl_to_mermaid.sh \
+  [jsonl文件] \
   [mmd输出文件]
 ```
 
-默认：`.tmp/callgraph-java.json -> .tmp/callgraph-java.mmd`
+默认：`.tmp/callgraph-java.jsonl -> .tmp/callgraph-java.mmd`
 
 ### 3) Mermaid 转 SVG
 
@@ -63,27 +63,26 @@ npx -y -p @mermaid-js/mermaid-cli mmdc ...
 ## 示例
 
 ```bash
-# 1. 生成 JSON
-plugins/java-call-graph-analyzer/skills/java-callgraph-analyzer/generate_callgraph_json.sh \
-  . .tmp/callgraph-java.json
+# 1. 生成 JSONL
+plugins/java-call-graph-analyzer/skills/java-callgraph-analyzer/generate_callgraph_jsonl.sh \
+  . .tmp/callgraph-java.jsonl
 
-# 2. 转 Mermaid
-plugins/java-call-graph-analyzer/skills/java-callgraph-analyzer/json_to_mermaid.sh \
-  .tmp/callgraph-java.json .tmp/callgraph-java.mmd
+# 2. JSONL 转 Mermaid
+plugins/java-call-graph-analyzer/skills/java-callgraph-analyzer/jsonl_to_mermaid.sh \
+  .tmp/callgraph-java.jsonl .tmp/callgraph-java.mmd
 
 # 3. 渲染 SVG
 plugins/java-call-graph-analyzer/skills/java-callgraph-analyzer/mmd2svg.sh \
   .tmp/callgraph-java.mmd .tmp/callgraph-java.svg
 ```
 
-## 输出 JSON 结构
+## 输出 JSONL 结构
 
-```json
-{
-  "meta": {"tool": "jdk-source-analyzer", "mode": "static-source"},
-  "nodes": [{"id": "pkg.Clz#method(java.lang.String)", "class": "pkg.Clz", "method": "method(java.lang.String)"}],
-  "edges": [{"from": "pkg.A#a()", "to": "pkg.B#b()"}]
-}
+每一行是一条调用边：
+
+```jsonl
+{"from":"pkg.A#a()","to":"pkg.B#b()"}
+{"from":"pkg.B#b()","to":"pkg.C#c(java.lang.String)"}
 ```
 
 ## 当前能力边界

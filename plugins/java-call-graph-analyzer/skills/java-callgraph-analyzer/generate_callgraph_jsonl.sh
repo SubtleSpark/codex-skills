@@ -3,7 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="${1:-.}"
-OUTPUT_FILE="${2:-.tmp/callgraph-java.json}"
+OUTPUT_FILE="${2:-.tmp/callgraph-java.jsonl}"
 CLASSPATH_ARG="${3:-}"
 INCLUDE_PREFIX_ARG="${4:-}"
 
@@ -21,4 +21,4 @@ fi
 
 "${CMD[@]}"
 
-echo "Callgraph JSON written to: $OUTPUT_FILE"
+echo "Callgraph JSONL written to: $OUTPUT_FILE"
