@@ -1,6 +1,6 @@
 {
   "name": "java-call-graph-analyzer",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Zero-intrusion Java call graph JSONL analysis skill packaged as a Codex plugin.",
   "skills": "./skills/",
   "interface": {
@@ -8,6 +8,8 @@
     "shortDescription": "Generate Java call graph JSONL and Mermaid diagrams with JDK + NPM",
     "developerName": "jun",
     "category": "Productivity",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/logo.png",
     "capabilities": [
       "Read"
     ]

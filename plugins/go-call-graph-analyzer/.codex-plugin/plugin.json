@@ -1,6 +1,6 @@
 {
   "name": "go-call-graph-analyzer",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Static Go call graph analysis skill packaged as a Codex plugin.",
   "skills": "./skills/",
   "interface": {
@@ -8,6 +8,8 @@
     "shortDescription": "Static Go call graph analysis skill packaged as a Codex plugin",
     "developerName": "jun",
     "category": "Productivity",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/logo.png",
     "capabilities": [
       "Read"
     ]
