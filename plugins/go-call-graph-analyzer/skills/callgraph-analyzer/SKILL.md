@@ -1,6 +1,6 @@
 ---
 name: callgraph-analyzer
-description: 使用 Go 官方 callgraph 工具分析代码调用链，支持向下（看调用了谁）和向上（看被谁调用）两种分析模式，生成 Mermaid 流程图。
+description: 手动触发时使用：使用 Go 官方 callgraph 工具分析代码调用链，生成 Mermaid 和 SVG。
 ---
 
 # Callgraph Analyzer
@@ -27,7 +27,7 @@ go install golang.org/x/tools/cmd/callgraph@latest
 > **注意**：需在项目根目录执行
 
 ```bash
-.claude/skills/callgraph-analyzer/generate_callgraph_json.sh <项目目录> [输出文件]
+<skill-dir>/scripts/generate_callgraph_json.sh <项目目录> [输出文件]
 ```
 
 **参数说明：**
@@ -39,7 +39,7 @@ go install golang.org/x/tools/cmd/callgraph@latest
 > **注意**：需在项目根目录执行
 
 ```bash
-go run .claude/skills/callgraph-analyzer/main.go \
+go run <skill-dir>/scripts/main.go \
   -mode=<down|up> \
   -func="包路径.函数名" \
   -prefix="包前缀" \
@@ -78,7 +78,7 @@ go run .claude/skills/callgraph-analyzer/main.go \
 ### 3. 转换为 SVG（可选）
 
 ```bash
-.claude/skills/callgraph-analyzer/mmd2svg.sh <mmd文件>
+<skill-dir>/scripts/mmd2svg.sh <mmd文件>
 ```
 
 ## 样式说明
@@ -125,10 +125,10 @@ go run .claude/skills/callgraph-analyzer/main.go \
 
 ```bash
 # 1. 生成 JSON（首次或代码变更后执行）
-.claude/skills/callgraph-analyzer/generate_callgraph_json.sh .
+<skill-dir>/scripts/generate_callgraph_json.sh .
 
 # 2. 向下分析，剪枝 DoBidding，标记 Check
-go run .claude/skills/callgraph-analyzer/main.go \
+go run <skill-dir>/scripts/main.go \
   -mode=down \
   -func="adxserver/controllers/http/ad.AdReq" \
   -prefix="adxserver/" \
@@ -137,19 +137,19 @@ go run .claude/skills/callgraph-analyzer/main.go \
   -output=.tmp/adreq_down.mmd
 
 # 3. 转换为 SVG
-.claude/skills/callgraph-analyzer/mmd2svg.sh .tmp/adreq_down.mmd
+<skill-dir>/scripts/mmd2svg.sh .tmp/adreq_down.mmd
 ```
 
 ### 示例 2：向上分析 GetAd 被谁调用
 
 ```bash
-go run .claude/skills/callgraph-analyzer/main.go \
+go run <skill-dir>/scripts/main.go \
   -mode=up \
   -func="(*adxserver/service/srvcache.defaultSrv).GetAd" \
   -prefix="adxserver/" \
   -output=.tmp/getad_up.mmd
 
-.claude/skills/callgraph-analyzer/mmd2svg.sh .tmp/getad_up.mmd
+<skill-dir>/scripts/mmd2svg.sh .tmp/getad_up.mmd
 ```
 
 ### 示例 3：重构前影响分析
@@ -157,7 +157,7 @@ go run .claude/skills/callgraph-analyzer/main.go \
 想要重构某个底层函数？先看看有多少地方调用了它：
 
 ```bash
-go run .claude/skills/callgraph-analyzer/main.go \
+go run <skill-dir>/scripts/main.go \
   -mode=up \
   -func="adxserver/helpers.FormatPrice" \
   -prefix="adxserver/" \
@@ -171,14 +171,14 @@ go run .claude/skills/callgraph-analyzer/main.go \
 
 ```bash
 # 向下：看多个入口的共同依赖
-go run .claude/skills/callgraph-analyzer/main.go \
+go run <skill-dir>/scripts/main.go \
   -mode=down \
   -func="adxserver/controllers/http/ad.AdReq,adxserver/controllers/http/ad.Bid" \
   -prefix="adxserver/" \
   -output=.tmp/multi_down.mmd
 
 # 向上：看多个函数的共同调用者
-go run .claude/skills/callgraph-analyzer/main.go \
+go run <skill-dir>/scripts/main.go \
   -mode=up \
   -func="pkg.FuncA,pkg.FuncB,pkg.FuncC" \
   -prefix="adxserver/" \

@@ -11,10 +11,10 @@
 // 使用示例:
 //
 //	# 向下分析（A 调用了谁）
-//	go run main.go -mode=down -func="pkg.Handler" -cut="DoBidding"
+//	go run <skill-dir>/scripts/main.go -mode=down -func="pkg.Handler" -cut="DoBidding"
 //
 //	# 向上分析（谁调用了 A）
-//	go run main.go -mode=up -func="pkg.GetData"
+//	go run <skill-dir>/scripts/main.go -mode=up -func="pkg.GetData"
 package main
 
 import (
@@ -121,8 +121,8 @@ func main() {
 		fmt.Fprintln(os.Stderr, "使用方法：")
 		flag.PrintDefaults()
 		fmt.Fprintln(os.Stderr, "\n示例：")
-		fmt.Fprintln(os.Stderr, "  go run main.go -mode=down -func=\"pkg.Func\"")
-		fmt.Fprintln(os.Stderr, "  go run main.go -mode=up -func=\"pkg.Func\"")
+		fmt.Fprintln(os.Stderr, "  go run <skill-dir>/scripts/main.go -mode=down -func=\"pkg.Func\"")
+		fmt.Fprintln(os.Stderr, "  go run <skill-dir>/scripts/main.go -mode=up -func=\"pkg.Func\"")
 		os.Exit(1)
 	}
 
