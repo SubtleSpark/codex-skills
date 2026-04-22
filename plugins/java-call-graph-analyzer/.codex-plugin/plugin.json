@@ -1,6 +1,6 @@
 {
   "name": "java-call-graph-analyzer",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Zero-intrusion Java call graph JSONL analysis skill packaged as a Codex plugin.",
   "skills": "./skills/",
   "interface": {
