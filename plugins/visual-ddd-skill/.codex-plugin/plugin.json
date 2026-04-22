@@ -1,0 +1,17 @@
+{
+  "name": "visual-ddd-skill",
+  "version": "0.1.0",
+  "description": "Generate Java class dependencies as a first step toward visual DDD analysis.",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Visual DDD Skill",
+    "shortDescription": "Generate Java class dependency JSONL for DDD visualization",
+    "developerName": "jun",
+    "category": "Productivity",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/logo.png",
+    "capabilities": [
+      "Read"
+    ]
+  }
+}
