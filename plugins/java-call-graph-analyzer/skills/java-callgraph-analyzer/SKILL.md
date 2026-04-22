@@ -1,6 +1,6 @@
 ---
 name: java-callgraph-analyzer
-description: 零入侵分析 Java 源码调用链，生成 edge-only JSONL、Mermaid 和 SVG。
+description: 手动触发时使用：零入侵分析 Java 源码调用链，生成 edge-only JSONL、Mermaid 和 SVG。
 ---
 
 # Java Call Graph Analyzer
@@ -21,7 +21,7 @@ description: 零入侵分析 Java 源码调用链，生成 edge-only JSONL、Mer
 ### 1) 生成 callgraph JSONL（关键步骤）
 
 ```bash
-plugins/java-call-graph-analyzer/skills/java-callgraph-analyzer/generate_callgraph_jsonl.sh \
+<skill-dir>/generate_callgraph_jsonl.sh \
   <项目目录> \
   [输出文件] \
   [classpath] \
@@ -39,7 +39,7 @@ plugins/java-call-graph-analyzer/skills/java-callgraph-analyzer/generate_callgra
 ### 2) JSONL 转 Mermaid
 
 ```bash
-plugins/java-call-graph-analyzer/skills/java-callgraph-analyzer/jsonl_to_mermaid.sh \
+<skill-dir>/jsonl_to_mermaid.sh \
   [jsonl文件] \
   [mmd输出文件]
 ```
@@ -49,7 +49,7 @@ plugins/java-call-graph-analyzer/skills/java-callgraph-analyzer/jsonl_to_mermaid
 ### 3) Mermaid 转 SVG
 
 ```bash
-plugins/java-call-graph-analyzer/skills/java-callgraph-analyzer/mmd2svg.sh \
+<skill-dir>/mmd2svg.sh \
   <mmd文件> \
   [svg输出文件]
 ```
@@ -64,15 +64,15 @@ npx -y -p @mermaid-js/mermaid-cli mmdc ...
 
 ```bash
 # 1. 生成 JSONL
-plugins/java-call-graph-analyzer/skills/java-callgraph-analyzer/generate_callgraph_jsonl.sh \
+<skill-dir>/generate_callgraph_jsonl.sh \
   . .tmp/callgraph-java.jsonl
 
 # 2. JSONL 转 Mermaid
-plugins/java-call-graph-analyzer/skills/java-callgraph-analyzer/jsonl_to_mermaid.sh \
+<skill-dir>/jsonl_to_mermaid.sh \
   .tmp/callgraph-java.jsonl .tmp/callgraph-java.mmd
 
 # 3. 渲染 SVG
-plugins/java-call-graph-analyzer/skills/java-callgraph-analyzer/mmd2svg.sh \
+<skill-dir>/mmd2svg.sh \
   .tmp/callgraph-java.mmd .tmp/callgraph-java.svg
 ```
 

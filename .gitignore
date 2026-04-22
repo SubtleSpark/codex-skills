@@ -1,0 +1,58 @@
+# macOS / Windows
+.idea/
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+*.swp
+*.swo
+*~
+
+# Local env / secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Temporary files
+.tmp/
+tmp/
+temp/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.python-version
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+*.egg-info/
+
+# Node / frontend
+node_modules/
+coverage/
+.next/
+.nuxt/
+.vite/
+.turbo/
+
+# Java / JVM
+*.class
+target/
+build/
+out/
+.gradle/
