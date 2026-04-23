@@ -1,15 +1,16 @@
 ---
 name: visual-ddd-skill
-description: 手动触发时使用：通过静态分析 Java 源码生成 class dependency JSONL 和 DDD layer metadata JSONL。
+description: 手动触发时使用：通过静态分析 Java 源码生成 class dependency JSONL、DDD layer metadata JSONL 和 package 级 Mermaid/SVG 图。
 ---
 
 # Visual DDD Skill
 
-当前提供两类 JSONL：Java 类与类之间的静态依赖关系，以及基于正则配置的 DDD layer metadata。Layer 标记只按类名规则分类，不推断更深业务语义。
+当前提供两类 JSONL：Java 类与类之间的静态依赖关系，以及基于正则配置的 DDD layer metadata。随后可将两者按 package 聚合成 Mermaid/SVG 图。Layer 标记只按类名规则分类，不推断更深业务语义。
 
 ## 前置依赖
 
 - JDK（需要 `javac`）
+- NPM（可选，仅用于 Mermaid 转 SVG）
 
 ## 使用步骤
 
@@ -47,6 +48,30 @@ description: 手动触发时使用：通过静态分析 Java 源码生成 class 
 - `[classpath]`：可选，辅助 `javac` 做类型解析（`:` 分隔）
 - `[include-prefix]`：可选，只输出匹配该类名前缀的项目内 class metadata；多个用逗号分隔
 
+### 3) 生成 package 级 Mermaid 图
+
+```bash
+<skill-dir>/scripts/package_dependencies_to_mermaid.sh \
+  [class-dependencies-jsonl] \
+  [class-layers-jsonl] \
+  [mmd输出文件]
+```
+
+默认：
+- `[class-dependencies-jsonl]`：`.tmp/class-dependencies-java.jsonl`
+- `[class-layers-jsonl]`：`.tmp/class-layers-java.jsonl`
+- `[mmd输出文件]`：`.tmp/package-dependencies-java.mmd`
+
+### 4) Mermaid 转 SVG
+
+```bash
+<skill-dir>/scripts/mmd2svg.sh \
+  <mmd文件> \
+  [svg输出文件]
+```
+
+默认：`[svg输出文件]` 为 `.tmp/package-dependencies-java.svg`
+
 ## 输出 JSONL 结构
 
 Class dependency JSONL 每一行是一条类依赖边：
@@ -73,10 +98,15 @@ Class layer JSONL 每一行是一条类元数据：
 
 如需解释 layer 配置 schema、Java regex 匹配风格、匹配顺序、默认层规则和自定义配置示例，读取 `references/ddd-layer-config.md`。
 
+Package Mermaid 图按完整 Java package 聚合 class 依赖边，并按 package 内 class 的 DDD layer 上色。边标签显示聚合后的依赖数量和 `kind` 集合。如需解释聚合规则、Mixed/Unknown 上色规则和边标签含义，读取 `references/package-dependency-visualization.md`。
+
+如需查看整体流程图和四张 reference 图片索引，读取 `references/visual-ddd-workflow.md`。
+
 ## 当前能力边界
 
 - 使用 `javac` 解析符号，`import *` 只会在实际使用具体类时输出具体类依赖
 - 不输出 unused import
 - 默认只输出项目源码内的类依赖，不输出 JDK、Spring、Lombok、Vavr 等外部依赖
 - DDD layer 标记只按完整类名正则匹配，不推断真实业务语义
+- package 级图会丢弃 class 级细节；具体来源仍从 class dependency JSONL 追溯
 - 这是源码静态分析，不执行业务代码

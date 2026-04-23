@@ -1,11 +1,11 @@
 {
   "name": "visual-ddd-skill",
-  "version": "0.1.1",
-  "description": "Generate Java class dependency and DDD layer JSONL for visual DDD analysis.",
+  "version": "0.1.2",
+  "description": "Generate Java class dependency JSONL, DDD layer JSONL, and package-level Mermaid/SVG diagrams.",
   "skills": "./skills/",
   "interface": {
     "displayName": "Visual DDD Skill",
-    "shortDescription": "Generate Java dependency and DDD layer JSONL",
+    "shortDescription": "Generate Java DDD dependency diagrams",
     "developerName": "jun",
     "category": "Productivity",
     "composerIcon": "./assets/icon.png",
