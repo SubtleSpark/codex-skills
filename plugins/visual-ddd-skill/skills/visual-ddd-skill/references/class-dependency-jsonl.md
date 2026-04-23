@@ -2,6 +2,12 @@
 
 This reference records decisions and explanations for Visual DDD Skill's Java class dependency JSONL output.
 
+## Diagram
+
+Image file: `assets/class-dependency-flow.png`
+
+![Class dependency flow](../assets/class-dependency-flow.png)
+
 ## JSONL Schema
 
 Each line is one class-to-class dependency edge:

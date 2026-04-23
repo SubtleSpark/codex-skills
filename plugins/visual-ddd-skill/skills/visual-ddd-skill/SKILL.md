@@ -43,7 +43,7 @@ description: 手动触发时使用：通过静态分析 Java 源码生成 class 
 参数：
 - `<项目目录>`：要分析的 Java 源码根目录
 - `[输出文件]`：默认 `.tmp/class-layers-java.jsonl`
-- `[layer-config]`：默认 `references/default-ddd-layers.json`
+- `[layer-config]`：可选的 JSON 配置文件路径；默认 `references/default-ddd-layers.json`
 - `[classpath]`：可选，辅助 `javac` 做类型解析（`:` 分隔）
 - `[include-prefix]`：可选，只输出匹配该类名前缀的项目内 class metadata；多个用逗号分隔
 
@@ -71,7 +71,7 @@ Class layer JSONL 每一行是一条类元数据：
 {"class":"pkg.A","layer":"domain","label":"Domain","color":"#2F855A"}
 ```
 
-如需解释 layer 配置 schema、匹配顺序和默认层规则，读取 `references/ddd-layer-config.md`。
+如需解释 layer 配置 schema、Java regex 匹配风格、匹配顺序、默认层规则和自定义配置示例，读取 `references/ddd-layer-config.md`。
 
 ## 当前能力边界
 

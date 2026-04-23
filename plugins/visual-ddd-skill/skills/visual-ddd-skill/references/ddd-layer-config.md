@@ -1,10 +1,30 @@
 # DDD Layer Config Reference
 
-This reference documents how Visual DDD Skill assigns DDD layer metadata to Java classes.
+Visual DDD Skill assigns DDD layer metadata by matching fully qualified Java class
+names against ordered regex rules.
 
-## Config Schema
+## Diagram
 
-Layer rules are stored in JSON:
+Image file: `assets/ddd-layer-flow.png`
+
+![DDD layer flow](../assets/ddd-layer-flow.png)
+
+## Where To Configure
+
+Layer rules live in a JSON file. Pass that file as the third argument to
+`generate_class_layers_jsonl.sh`; if omitted, the script uses
+`references/default-ddd-layers.json`.
+
+```bash
+<skill-dir>/scripts/generate_class_layers_jsonl.sh \
+  /path/to/project/src/main/java \
+  /path/to/project/.tmp/class-layers-java.jsonl \
+  /path/to/my-ddd-layers.json \
+  "$CLASSPATH" \
+  io.pillopl.library
+```
+
+## Schema
 
 ```json
 {
@@ -24,22 +44,75 @@ Layer rules are stored in JSON:
 }
 ```
 
-- `layers`: Ordered layer rules.
+- `layers`: Ordered layer rules; the first match wins.
 - `id`: Stable machine-readable layer id.
 - `label`: Human-readable layer name.
-- `color`: Hex color used by later visualization steps.
-- `patterns`: Java regular expressions matched against the fully qualified class name.
+- `color`: Hex color for later visualization.
+- `patterns`: Java regex patterns matched against the full class name.
 - `defaultLayer`: Fallback metadata when no rule matches.
 
-## Matching Rules
+## Pattern Syntax
 
-- Regex patterns match the full class name, not only the package.
-- Rules are evaluated in order.
-- The first matching layer wins.
-- Classes that do not match any pattern use `defaultLayer`.
-- `include-prefix` filters which classes are emitted before layer matching is written.
+`patterns` use Java regular expressions (`java.util.regex.Pattern`), not SQL
+`LIKE` and not shell glob syntax.
 
-## Output JSONL Schema
+- Use `.*` for any number of characters.
+- Use `\\.` in JSON to match a literal dot in a package name.
+- `%` has no wildcard meaning.
+- A bare `*` is not a valid "match anything" pattern.
+- Matching uses `matches()`, so the regex must match the whole class name.
+
+Example:
+
+```json
+".*\\.model(\\..*)?\\.[^.]+$"
+```
+
+This matches classes such as:
+
+```text
+io.pillopl.library.lending.patron.model.Patron
+io.pillopl.library.lending.book.model.Book.BookId
+```
+
+## Example Layers
+
+Use separate rules when you want `model` and `domain` rendered differently:
+
+```json
+{
+  "layers": [
+    {
+      "id": "model",
+      "label": "Model",
+      "color": "#2F855A",
+      "patterns": ["^io\\.pillopl\\.library\\..*\\.model(\\..*)?\\.[^.]+$"]
+    },
+    {
+      "id": "domain",
+      "label": "Domain",
+      "color": "#276749",
+      "patterns": ["^io\\.pillopl\\.library\\..*\\.domain(\\..*)?\\.[^.]+$"]
+    },
+    {
+      "id": "application",
+      "label": "Application",
+      "color": "#2B6CB0",
+      "patterns": ["^io\\.pillopl\\.library\\..*\\.application(\\..*)?\\.[^.]+$"]
+    }
+  ],
+  "defaultLayer": {
+    "id": "unknown",
+    "label": "Unknown",
+    "color": "#A0AEC0"
+  }
+}
+```
+
+If `model` and `domain` should both be rendered as one Domain layer, put both
+patterns in one layer's `patterns` array.
+
+## Output JSONL
 
 Each line is one class metadata record:
 
@@ -47,17 +120,5 @@ Each line is one class metadata record:
 {"class":"io.pillopl.library.lending.patron.model.Patron","layer":"domain","label":"Domain","color":"#2F855A"}
 ```
 
-- `class`: Fully qualified class name.
-- `layer`: Matched layer id.
-- `label`: Matched layer label.
-- `color`: Matched layer color.
-
-## Default Layer Set
-
-`default-ddd-layers.json` covers common package names:
-
-- `model` / `domain` -> `domain`
-- `application` / `usecase` / `service` -> `application`
-- `infrastructure` / `adapter` / `persistence` -> `infrastructure`
-- `web` / `controller` / `api` -> `presentation`
-- `commons` / `common` / `shared` -> `shared`
+`include-prefix` only filters which classes are emitted; it is a plain
+`startsWith` prefix check, not a regex.
