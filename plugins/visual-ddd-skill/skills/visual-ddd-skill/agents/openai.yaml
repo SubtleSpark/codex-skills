@@ -1,6 +1,6 @@
 interface:
   display_name: "Visual DDD Skill"
-  short_description: "Generate Java class dependency JSONL"
+  short_description: "Generate Java dependency and DDD layer JSONL"
   icon_small: "./assets/logo-small.png"
   icon_large: "./assets/logo.png"
   default_prompt: "Use $visual-ddd-skill to generate Java class dependency JSONL for this project."

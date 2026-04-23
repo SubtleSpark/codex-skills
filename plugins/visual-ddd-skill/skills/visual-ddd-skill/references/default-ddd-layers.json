@@ -1,0 +1,58 @@
+{
+  "layers": [
+    {
+      "id": "domain",
+      "label": "Domain",
+      "color": "#2F855A",
+      "patterns": [
+        ".*\\.model(\\..*)?\\.[^.]+$",
+        ".*\\.domain(\\..*)?\\.[^.]+$"
+      ]
+    },
+    {
+      "id": "application",
+      "label": "Application",
+      "color": "#2B6CB0",
+      "patterns": [
+        ".*\\.application(\\..*)?\\.[^.]+$",
+        ".*\\.usecase(\\..*)?\\.[^.]+$",
+        ".*\\.service(\\..*)?\\.[^.]+$"
+      ]
+    },
+    {
+      "id": "infrastructure",
+      "label": "Infrastructure",
+      "color": "#805AD5",
+      "patterns": [
+        ".*\\.infrastructure(\\..*)?\\.[^.]+$",
+        ".*\\.adapter(\\..*)?\\.[^.]+$",
+        ".*\\.persistence(\\..*)?\\.[^.]+$"
+      ]
+    },
+    {
+      "id": "presentation",
+      "label": "Presentation",
+      "color": "#DD6B20",
+      "patterns": [
+        ".*\\.web(\\..*)?\\.[^.]+$",
+        ".*\\.controller(\\..*)?\\.[^.]+$",
+        ".*\\.api(\\..*)?\\.[^.]+$"
+      ]
+    },
+    {
+      "id": "shared",
+      "label": "Shared",
+      "color": "#718096",
+      "patterns": [
+        ".*\\.commons(\\..*)?\\.[^.]+$",
+        ".*\\.common(\\..*)?\\.[^.]+$",
+        ".*\\.shared(\\..*)?\\.[^.]+$"
+      ]
+    }
+  ],
+  "defaultLayer": {
+    "id": "unknown",
+    "label": "Unknown",
+    "color": "#A0AEC0"
+  }
+}

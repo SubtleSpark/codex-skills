@@ -1,11 +1,11 @@
 ---
 name: visual-ddd-skill
-description: 手动触发时使用：通过静态分析 Java 源码生成 class dependency JSONL，作为可视化 DDD 依赖关系的第一步。
+description: 手动触发时使用：通过静态分析 Java 源码生成 class dependency JSONL 和 DDD layer metadata JSONL。
 ---
 
 # Visual DDD Skill
 
-第一阶段只生成 Java 类与类之间的静态依赖关系，不做 DDD 语义分类。
+当前提供两类 JSONL：Java 类与类之间的静态依赖关系，以及基于正则配置的 DDD layer metadata。Layer 标记只按类名规则分类，不推断更深业务语义。
 
 ## 前置依赖
 
@@ -29,9 +29,27 @@ description: 手动触发时使用：通过静态分析 Java 源码生成 class 
 - `[classpath]`：可选，辅助 `javac` 做类型解析（`:` 分隔）
 - `[include-prefix]`：可选，只输出匹配该类名前缀的项目内依赖；多个用逗号分隔
 
+### 2) 生成 DDD layer metadata JSONL
+
+```bash
+<skill-dir>/scripts/generate_class_layers_jsonl.sh \
+  <项目目录> \
+  [输出文件] \
+  [layer-config] \
+  [classpath] \
+  [include-prefix]
+```
+
+参数：
+- `<项目目录>`：要分析的 Java 源码根目录
+- `[输出文件]`：默认 `.tmp/class-layers-java.jsonl`
+- `[layer-config]`：默认 `references/default-ddd-layers.json`
+- `[classpath]`：可选，辅助 `javac` 做类型解析（`:` 分隔）
+- `[include-prefix]`：可选，只输出匹配该类名前缀的项目内 class metadata；多个用逗号分隔
+
 ## 输出 JSONL 结构
 
-每一行是一条类依赖边：
+Class dependency JSONL 每一行是一条类依赖边：
 
 ```jsonl
 {"from":"pkg.A","to":"pkg.B","kind":"field"}
@@ -47,9 +65,18 @@ local-var, new, annotation, static-import, class-literal, cast, instanceof
 
 如需解释 JSONL schema、`kind` 枚举含义和 import 处理规则，读取 `references/class-dependency-jsonl.md`。
 
+Class layer JSONL 每一行是一条类元数据：
+
+```jsonl
+{"class":"pkg.A","layer":"domain","label":"Domain","color":"#2F855A"}
+```
+
+如需解释 layer 配置 schema、匹配顺序和默认层规则，读取 `references/ddd-layer-config.md`。
+
 ## 当前能力边界
 
 - 使用 `javac` 解析符号，`import *` 只会在实际使用具体类时输出具体类依赖
 - 不输出 unused import
 - 默认只输出项目源码内的类依赖，不输出 JDK、Spring、Lombok、Vavr 等外部依赖
+- DDD layer 标记只按完整类名正则匹配，不推断真实业务语义
 - 这是源码静态分析，不执行业务代码
