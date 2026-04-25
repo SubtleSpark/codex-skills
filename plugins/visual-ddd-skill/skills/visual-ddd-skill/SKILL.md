@@ -36,17 +36,30 @@ description: 手动触发时使用：通过静态分析 Java 源码生成 class 
 <skill-dir>/scripts/generate_class_layers_jsonl.sh \
   <项目目录> \
   [输出文件] \
-  [layer-config] \
+  <layer-config> \
   [classpath] \
   [include-prefix]
 ```
 
 参数：
 - `<项目目录>`：要分析的 Java 源码根目录
-- `[输出文件]`：默认 `.tmp/class-layers-java.jsonl`
-- `[layer-config]`：可选的 JSON 配置文件路径；默认 `references/default-ddd-layers.json`
+- `[输出文件]`：默认 `.tmp/class-layers-java.jsonl`；如需使用默认输出但传入后续参数，传空字符串 `""`
+- `<layer-config>`：必填，项目专属的 JSON layer 配置文件路径；内置 `references/example-ddd-layers.json` 只作为起点，不代表项目真实分层
 - `[classpath]`：可选，辅助 `javac` 做类型解析（`:` 分隔）
 - `[include-prefix]`：可选，只输出匹配该类名前缀的项目内 class metadata；多个用逗号分隔
+
+示例：
+
+```bash
+<skill-dir>/scripts/generate_class_layers_jsonl.sh \
+  /path/to/project/src/main/java \
+  /path/to/project/.tmp/class-layers-java.jsonl \
+  <skill-dir>/references/example-ddd-layers.json \
+  "$CLASSPATH" \
+  com.example
+```
+
+Layer config 必须按项目包结构和架构文档定制。配置文件名不固定，只要在第三个参数显式传入即可。
 
 ### 3) 生成 package 级 Mermaid 图
 
@@ -96,7 +109,7 @@ Class layer JSONL 每一行是一条类元数据：
 {"class":"pkg.A","layer":"domain","label":"Domain","color":"#2F855A"}
 ```
 
-如需解释 layer 配置 schema、Java regex 匹配风格、匹配顺序、默认层规则和自定义配置示例，读取 `references/ddd-layer-config.md`。
+如需解释 layer 配置 schema、Java regex 匹配风格、匹配顺序、fallback layer 规则和自定义配置示例，读取 `references/ddd-layer-config.md`。
 
 Package Mermaid 图按完整 Java package 聚合 class 依赖边，并按 package 内 class 的 DDD layer 上色。边标签显示聚合后的依赖数量和 `kind` 集合。如需解释聚合规则、Mixed/Unknown 上色规则和边标签含义，读取 `references/package-dependency-visualization.md`。
 

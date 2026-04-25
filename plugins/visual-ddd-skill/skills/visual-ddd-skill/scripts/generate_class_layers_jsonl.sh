@@ -2,15 +2,21 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SKILL_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 PROJECT_DIR="${1:-.}"
 OUTPUT_FILE="${2:-.tmp/class-layers-java.jsonl}"
-LAYER_CONFIG_ARG="${3:-$SKILL_DIR/references/default-ddd-layers.json}"
+LAYER_CONFIG_ARG="${3:-}"
 CLASSPATH_ARG="${4:-}"
 INCLUDE_PREFIX_ARG="${5:-}"
 
 if [[ -z "$LAYER_CONFIG_ARG" ]]; then
-  LAYER_CONFIG_ARG="$SKILL_DIR/references/default-ddd-layers.json"
+  echo "Usage: $0 <project-dir> [output-file] <layer-config> [classpath] [include-prefix]" >&2
+  echo "layer-config is required. Start from references/example-ddd-layers.json and customize it for your project." >&2
+  exit 1
+fi
+
+if [[ ! -f "$LAYER_CONFIG_ARG" ]]; then
+  echo "layer-config not found: $LAYER_CONFIG_ARG" >&2
+  exit 1
 fi
 
 mkdir -p "$(dirname "$OUTPUT_FILE")"

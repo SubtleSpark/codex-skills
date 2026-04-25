@@ -11,9 +11,9 @@ Image file: `assets/ddd-layer-flow.png`
 
 ## Where To Configure
 
-Layer rules live in a JSON file. Pass that file as the third argument to
-`generate_class_layers_jsonl.sh`; if omitted, the script uses
-`references/default-ddd-layers.json`.
+Layer rules live in a JSON file with any filename. Pass that file as the third
+argument to `generate_class_layers_jsonl.sh`; the script does not infer project
+layers and does not apply a bundled config automatically.
 
 ```bash
 <skill-dir>/scripts/generate_class_layers_jsonl.sh \
@@ -23,6 +23,10 @@ Layer rules live in a JSON file. Pass that file as the third argument to
   "$CLASSPATH" \
   io.pillopl.library
 ```
+
+Start from `references/example-ddd-layers.json` if helpful, then customize a
+project-specific config from the package structure and architecture docs before
+generating layer metadata.
 
 ## Schema
 
@@ -76,6 +80,10 @@ io.pillopl.library.lending.book.model.Book.BookId
 ```
 
 ## Example Layers
+
+The bundled `references/example-ddd-layers.json` is a reference template, not a
+project truth. Copy it or create a new JSON file, rename it freely, and pass that
+file path in the command.
 
 Use separate rules when you want `model` and `domain` rendered differently:
 
