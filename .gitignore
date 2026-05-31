@@ -1,10 +1,18 @@
 # macOS / Windows
-.idea/
 .DS_Store
 Thumbs.db
 
-# Editors
+# IDEs / editors
+.idea/
+*.iml
+*.ipr
+*.iws
 .vscode/
+*.code-workspace
+.project
+.classpath
+.settings/
+nbproject/
 *.swp
 *.swo
 *~
