@@ -13,6 +13,7 @@ import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -20,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.LinkedHashMap;
@@ -49,10 +51,10 @@ public class JavaSourceCallGraphExporter {
         }
 
         try (StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, StandardCharsets.UTF_8)) {
-            Iterable<? extends JavaFileObject> units = fileManager.getJavaFileObjectsFromPaths(javaFiles);
+            Iterable<? extends JavaFileObject> units = fileManager.getJavaFileObjectsFromFiles(toFiles(javaFiles));
             List<String> options = new ArrayList<>();
             options.add("-Xlint:none");
-            if (!classpath.isBlank()) {
+            if (!isBlank(classpath)) {
                 options.add("-classpath");
                 options.add(classpath);
             }
@@ -82,30 +84,42 @@ public class JavaSourceCallGraphExporter {
         }
     }
 
+    private static List<File> toFiles(List<Path> paths) {
+        List<File> files = new ArrayList<>();
+        for (Path path : paths) {
+            files.add(path.toFile());
+        }
+        return files;
+    }
+
     private static void writeJsonl(Path output, List<String> lines) throws IOException {
         if (output.getParent() != null) {
             Files.createDirectories(output.getParent());
         }
         String content = lines.isEmpty() ? "" : String.join(System.lineSeparator(), lines) + System.lineSeparator();
-        Files.writeString(output, content, StandardCharsets.UTF_8);
+        Files.write(output, content.getBytes(StandardCharsets.UTF_8));
     }
 
     private static String required(Map<String, String> args, String key) {
         String v = args.get(key);
-        if (v == null || v.isBlank()) {
+        if (isBlank(v)) {
             throw new IllegalArgumentException("Missing required argument --" + key);
         }
         return v;
     }
 
     private static List<String> splitCsv(String s) {
-        if (s == null || s.isBlank()) {
-            return List.of();
+        if (isBlank(s)) {
+            return Collections.emptyList();
         }
         return Stream.of(s.split(","))
                 .map(String::trim)
                 .filter(x -> !x.isEmpty())
                 .collect(Collectors.toList());
+    }
+
+    private static boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
     }
 
     private static Map<String, String> parseArgs(String[] args) {

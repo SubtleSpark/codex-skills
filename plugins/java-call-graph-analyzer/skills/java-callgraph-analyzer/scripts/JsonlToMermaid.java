@@ -42,7 +42,7 @@ public class JsonlToMermaid {
         if (output.getParent() != null) {
             Files.createDirectories(output.getParent());
         }
-        Files.writeString(output, mmd.toString(), StandardCharsets.UTF_8);
+        Files.write(output, mmd.toString().getBytes(StandardCharsets.UTF_8));
         System.out.println("Generated Mermaid file: " + output);
     }
 

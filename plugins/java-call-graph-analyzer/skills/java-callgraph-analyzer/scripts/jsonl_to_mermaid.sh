@@ -7,7 +7,13 @@ OUTPUT_FILE="${2:-.tmp/callgraph-java.mmd}"
 
 mkdir -p "$(dirname "$OUTPUT_FILE")"
 
-javac "$SCRIPT_DIR/JsonlToMermaid.java"
-java -cp "$SCRIPT_DIR" JsonlToMermaid --input "$INPUT_FILE" --output "$OUTPUT_FILE"
+BUILD_DIR="$(mktemp -d "${TMPDIR:-/tmp}/java-callgraph-analyzer.XXXXXX")"
+cleanup() {
+  rm -rf "$BUILD_DIR"
+}
+trap cleanup EXIT
+
+javac -d "$BUILD_DIR" "$SCRIPT_DIR/JsonlToMermaid.java"
+java -cp "$BUILD_DIR" JsonlToMermaid --input "$INPUT_FILE" --output "$OUTPUT_FILE"
 
 echo "Mermaid file written to: $OUTPUT_FILE"
