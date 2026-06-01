@@ -1,11 +1,11 @@
 {
   "name": "java-call-graph-analyzer",
-  "version": "0.2.3",
-  "description": "Zero-intrusion Java call graph JSONL analysis skill with JDK 8+ compatibility.",
+  "version": "0.2.4",
+  "description": "Zero-intrusion Java call graph JSONL analysis skill with focused Mermaid traversal controls.",
   "skills": "./skills/",
   "interface": {
     "displayName": "Java Call Graph Analyzer",
-    "shortDescription": "Generate Java call graph JSONL and Mermaid diagrams with JDK 8+",
+    "shortDescription": "Generate Java call graph JSONL and focused Mermaid diagrams",
     "developerName": "jun",
     "category": "Productivity",
     "composerIcon": "./assets/icon.png",
