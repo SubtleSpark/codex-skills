@@ -21,7 +21,7 @@ public class JsonlToMermaid {
         Path output = Paths.get(cli.getOrDefault("output", ".tmp/callgraph-java.mmd"));
         Mode mode = Mode.parse(cli.getOrDefault("mode", "down"));
         List<String> requestedFuncs = splitList(cli.getOrDefault("func", ""));
-        List<String> includePrefixes = splitList(firstNonBlank(cli.get("include-prefix"), cli.get("prefix")));
+        List<String> includePrefixes = splitList(cli.getOrDefault("include-prefix", ""));
         int maxDepth = parseMaxDepth(cli.getOrDefault("max-depth", "20"));
         List<String> cutPatterns = splitList(cli.getOrDefault("cut", ""));
         List<String> markPatterns = splitList(cli.getOrDefault("mark", ""));
@@ -417,22 +417,15 @@ public class JsonlToMermaid {
         }
     }
 
-    private static String firstNonBlank(String a, String b) {
-        if (a != null && !a.trim().isEmpty()) {
-            return a;
-        }
-        return b == null ? "" : b;
-    }
-
     private static Map<String, String> parseArgs(String[] args) {
         Map<String, String> out = new LinkedHashMap<>();
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];
-            if (!arg.startsWith("-")) {
+            if (!arg.startsWith("--")) {
                 continue;
             }
 
-            String keyValue = arg.startsWith("--") ? arg.substring(2) : arg.substring(1);
+            String keyValue = arg.substring(2);
             String key;
             String value = "true";
             int equals = keyValue.indexOf('=');
@@ -442,7 +435,7 @@ public class JsonlToMermaid {
             } else {
                 key = keyValue;
             }
-            if (equals < 0 && i + 1 < args.length && !args[i + 1].startsWith("-")) {
+            if (equals < 0 && i + 1 < args.length && !args[i + 1].startsWith("--")) {
                 value = args[++i];
             }
             out.put(key, value);
