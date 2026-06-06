@@ -7,8 +7,10 @@ import com.sun.source.util.TreePathScanner;
 import com.sun.source.util.Trees;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.Elements;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
@@ -64,7 +66,8 @@ public class JavaSourceCallGraphExporter {
             task.analyze();
 
             Trees trees = Trees.instance(task);
-            CallGraphCollector collector = new CallGraphCollector(trees, includePrefixes);
+            Elements elements = task.getElements();
+            CallGraphCollector collector = new CallGraphCollector(trees, elements, includePrefixes);
             for (CompilationUnitTree unit : parsed) {
                 collector.scan(unit, null);
             }
@@ -72,6 +75,8 @@ public class JavaSourceCallGraphExporter {
             writeJsonl(output, collector.toJsonlLines());
             System.out.println("Generated callgraph JSONL: " + output);
             System.out.println("Edges: " + collector.edgeCount());
+            System.out.println("Direct edges: " + collector.directEdgeCount());
+            System.out.println("Hierarchy edges: " + collector.hierarchyEdgeCount());
         }
     }
 
@@ -139,8 +144,9 @@ public class JavaSourceCallGraphExporter {
         return out;
     }
 
-    private static String edgeJson(String from, String to) {
-        return "{\"from\":\"" + escape(from) + "\",\"to\":\"" + escape(to) + "\"}";
+    private static String edgeJson(GraphEdge edge) {
+        return "{\"from\":\"" + escape(edge.from) + "\",\"to\":\"" + escape(edge.to)
+                + "\",\"kind\":\"" + escape(edge.kind) + "\"}";
     }
 
     private static String escape(String s) {
@@ -154,12 +160,17 @@ public class JavaSourceCallGraphExporter {
 
     static final class CallGraphCollector extends TreePathScanner<Void, Void> {
         private final Trees trees;
+        private final Elements elements;
         private final List<String> includePrefixes;
         private final Deque<String> currentMethod = new ArrayDeque<>();
-        private final Set<String> edges = new LinkedHashSet<>();
+        private final Set<GraphEdge> directEdges = new LinkedHashSet<>();
+        private final Map<String, ExecutableElement> directCalleesById = new LinkedHashMap<>();
+        private final Map<String, List<MethodRef>> sourceMethodsByName = new LinkedHashMap<>();
+        private Set<GraphEdge> cachedHierarchyEdges;
 
-        CallGraphCollector(Trees trees, List<String> includePrefixes) {
+        CallGraphCollector(Trees trees, Elements elements, List<String> includePrefixes) {
             this.trees = trees;
+            this.elements = elements;
             this.includePrefixes = includePrefixes;
         }
 
@@ -167,6 +178,13 @@ public class JavaSourceCallGraphExporter {
         public Void visitMethod(MethodTree node, Void unused) {
             Element el = trees.getElement(getCurrentPath());
             String methodId = methodId(el);
+            if (methodId != null && el instanceof ExecutableElement) {
+                TypeElement owner = ownerType(el);
+                if (owner != null) {
+                    MethodRef method = new MethodRef(methodId, (ExecutableElement) el, owner);
+                    addSourceMethodByName(method);
+                }
+            }
             if (methodId != null) {
                 currentMethod.push(methodId);
             }
@@ -184,25 +202,99 @@ public class JavaSourceCallGraphExporter {
             }
             String caller = currentMethod.peek();
             Element calleeElement = trees.getElement(new TreePath(getCurrentPath(), node.getMethodSelect()));
-            String callee = methodId(calleeElement);
+            ExecutableElement executable = executable(calleeElement);
+            String callee = methodId(executable);
             if (callee != null && include(caller) && include(callee)) {
-                edges.add(caller + "\u0000" + callee);
+                directEdges.add(new GraphEdge(caller, callee, "direct"));
+                if (!directCalleesById.containsKey(callee)) {
+                    directCalleesById.put(callee, executable);
+                }
             }
             return super.visitMethodInvocation(node, unused);
         }
 
-        int edgeCount() { return edges.size(); }
+        int edgeCount() { return allEdges().size(); }
+
+        int directEdgeCount() { return directEdges.size(); }
+
+        int hierarchyEdgeCount() { return hierarchyEdges().size(); }
 
         List<String> toJsonlLines() {
             List<String> lines = new ArrayList<>();
-            for (String edge : edges) {
-                int separator = edge.indexOf('\u0000');
-                if (separator < 0) {
-                    continue;
-                }
-                lines.add(edgeJson(edge.substring(0, separator), edge.substring(separator + 1)));
+            for (GraphEdge edge : allEdges()) {
+                lines.add(edgeJson(edge));
             }
             return lines;
+        }
+
+        private Set<GraphEdge> allEdges() {
+            Set<GraphEdge> all = new LinkedHashSet<>(directEdges);
+            all.addAll(hierarchyEdges());
+            return all;
+        }
+
+        private Set<GraphEdge> hierarchyEdges() {
+            if (cachedHierarchyEdges != null) {
+                return cachedHierarchyEdges;
+            }
+
+            Set<GraphEdge> edges = new LinkedHashSet<>();
+            Map<String, List<MethodRef>> overridesCache = new LinkedHashMap<>();
+            for (GraphEdge directEdge : directEdges) {
+                ExecutableElement baseMethod = directCalleesById.get(directEdge.to);
+                if (baseMethod == null || baseMethod.getKind() == ElementKind.CONSTRUCTOR) {
+                    continue;
+                }
+
+                String baseId = methodId(baseMethod);
+                if (baseId == null || !include(baseId)) {
+                    continue;
+                }
+
+                List<MethodRef> overrides = overridesCache.get(baseId);
+                if (overrides == null) {
+                    overrides = findOverrides(baseMethod);
+                    overridesCache.put(baseId, overrides);
+                }
+
+                for (MethodRef override : overrides) {
+                    if (!baseId.equals(override.id) && include(override.id)) {
+                        edges.add(new GraphEdge(baseId, override.id, "hierarchy"));
+                    }
+                }
+            }
+            cachedHierarchyEdges = edges;
+            return edges;
+        }
+
+        private List<MethodRef> findOverrides(ExecutableElement baseMethod) {
+            List<MethodRef> overrides = new ArrayList<>();
+            List<MethodRef> candidates = sourceMethodsByName.get(baseMethod.getSimpleName().toString());
+            if (candidates == null) {
+                return overrides;
+            }
+
+            for (MethodRef candidate : candidates) {
+                if (candidate.element.equals(baseMethod)
+                        || candidate.element.getKind() == ElementKind.CONSTRUCTOR
+                        || !candidate.element.getSimpleName().contentEquals(baseMethod.getSimpleName())) {
+                    continue;
+                }
+                if (elements.overrides(candidate.element, baseMethod, candidate.owner)) {
+                    overrides.add(candidate);
+                }
+            }
+            return overrides;
+        }
+
+        private void addSourceMethodByName(MethodRef method) {
+            String name = method.element.getSimpleName().toString();
+            List<MethodRef> methods = sourceMethodsByName.get(name);
+            if (methods == null) {
+                methods = new ArrayList<>();
+                sourceMethodsByName.put(name, methods);
+            }
+            methods.add(method);
         }
 
         private boolean include(String methodId) {
@@ -213,11 +305,22 @@ public class JavaSourceCallGraphExporter {
             return false;
         }
 
-        private static String ownerName(Element el) {
+        private static ExecutableElement executable(Element el) {
+            return el instanceof ExecutableElement ? (ExecutableElement) el : null;
+        }
+
+        private static TypeElement ownerType(Element el) {
             Element encl = el == null ? null : el.getEnclosingElement();
             if (encl instanceof TypeElement) {
-                TypeElement t = (TypeElement) encl;
-                return t.getQualifiedName().toString();
+                return (TypeElement) encl;
+            }
+            return null;
+        }
+
+        private static String ownerName(Element el) {
+            TypeElement owner = ownerType(el);
+            if (owner != null) {
+                return owner.getQualifiedName().toString();
             }
             return "<unknown>";
         }
@@ -242,6 +345,46 @@ public class JavaSourceCallGraphExporter {
                 return null;
             }
             return owner + "#" + methodName(el);
+        }
+    }
+
+    static final class GraphEdge {
+        final String from;
+        final String to;
+        final String kind;
+
+        GraphEdge(String from, String to, String kind) {
+            this.from = from;
+            this.to = to;
+            this.kind = kind;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof GraphEdge)) return false;
+            GraphEdge other = (GraphEdge) o;
+            return from.equals(other.from) && to.equals(other.to) && kind.equals(other.kind);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = from.hashCode();
+            result = 31 * result + to.hashCode();
+            result = 31 * result + kind.hashCode();
+            return result;
+        }
+    }
+
+    static final class MethodRef {
+        final String id;
+        final ExecutableElement element;
+        final TypeElement owner;
+
+        MethodRef(String id, ExecutableElement element, TypeElement owner) {
+            this.id = id;
+            this.element = element;
+            this.owner = owner;
         }
     }
 }

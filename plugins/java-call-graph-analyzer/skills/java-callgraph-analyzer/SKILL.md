@@ -1,15 +1,16 @@
 ---
 name: java-callgraph-analyzer
-description: 手动触发时使用：零入侵分析 Java 源码调用链，生成 edge-only JSONL、全量或局部 Mermaid 调用链图和 SVG。
+description: 手动触发时使用：零入侵分析 Java 源码调用链，生成带 direct/hierarchy 边类型的 JSONL、全量或局部 Mermaid 调用链图和 SVG。
 ---
 
 # Java Call Graph Analyzer
 
 零入侵方式分析 Java 项目调用链：
 
-1. 用 JDK 内置编译器 API 扫描源码并导出 edge-only `callgraph.jsonl`
-2. 从 JSONL 生成全量或局部 Mermaid 调用链图
-3. 将 Mermaid 转成 SVG
+1. 用 JDK 内置编译器 API 扫描源码并导出带边类型的 `callgraph.jsonl`
+2. 默认补充接口、父类、子类 override 的 hierarchy 实现链路
+3. 从 JSONL 生成全量或局部 Mermaid 调用链图
+4. 将 Mermaid 转成 SVG
 
 ## 前置依赖
 
@@ -75,6 +76,7 @@ JAVA_HOME=/path/to/jdk-17 PATH="/path/to/jdk-17/bin:$PATH" \
 | `--mark` | `down` 模式标记节点，子串匹配；命中节点及其子节点标橙 | - |
 
 > 说明：当前 Java 版暂不支持 Go 版的 `external` 外部系统保留/着色参数。需要保留外部调用时，先不要用 `--include-prefix` 过滤，或后续增加可配置外部调用分类。
+> 当前 Mermaid 转换会读取带 `kind` 的 JSONL，但暂不按 `direct` / `hierarchy` 区分线型。
 
 ### 3) Mermaid 转 SVG
 
@@ -133,12 +135,19 @@ npx -y -p @mermaid-js/mermaid-cli mmdc ...
 每一行是一条调用边：
 
 ```jsonl
-{"from":"pkg.A#a()","to":"pkg.B#b()"}
-{"from":"pkg.B#b()","to":"pkg.C#c(java.lang.String)"}
+{"from":"pkg.A#a()","to":"pkg.B#b()","kind":"direct"}
+{"from":"pkg.B#b()","to":"pkg.C#c(java.lang.String)","kind":"direct"}
+{"from":"pkg.Service#create(java.lang.String)","to":"pkg.ServiceImpl#create(java.lang.String)","kind":"hierarchy"}
 ```
+
+- `kind=direct`：源码调用点直接解析出的调用边
+- `kind=hierarchy`：根据接口、父类、子类 override/implements 关系补充的实现链路边
+- 多实现接口会展开到多个候选实现；这是静态候选链路，不表示运行时一定只走某一个实现
 
 ## 当前能力边界
 
 - 这是静态源码分析，不执行业务代码
+- hierarchy 边只展开源码内可见的实现/override 方法，不会主动展开依赖 jar 里的框架实现类
+- 当前不做 Spring Bean 选择、`@Qualifier`、`@Primary`、profile 或 condition 判断
 - 对反射、动态代理、运行时字节码增强等场景覆盖有限
-- 若需要更高精度（CHA/RTA/points-to），可在后续切到 SootUp 版导出器
+- 若需要更高精度（RTA/points-to），可在后续切到 SootUp 版导出器
