@@ -1,11 +1,11 @@
 {
   "name": "java-call-graph-analyzer",
-  "version": "0.2.5",
-  "description": "Zero-intrusion Java method call-chain tracing with hierarchy-aware JSONL edges and Mermaid output.",
+  "version": "0.2.6",
+  "description": "Zero-intrusion Java method call-chain tracing with hierarchy-aware JSONL edges and compact Mermaid output.",
   "skills": "./skills/",
   "interface": {
     "displayName": "Java Call Graph Analyzer",
-    "shortDescription": "Trace Java method call chains with hierarchy-aware JSONL",
+    "shortDescription": "Trace Java call chains with compact Mermaid labels",
     "developerName": "jun",
     "category": "Productivity",
     "composerIcon": "./assets/icon.png",

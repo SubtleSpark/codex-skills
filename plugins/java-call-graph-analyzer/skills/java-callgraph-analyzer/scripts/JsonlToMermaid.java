@@ -49,7 +49,7 @@ public class JsonlToMermaid {
             String n = "N" + idx++;
             alias.put(node, n);
             mmd.append("  ").append(n)
-                    .append("[\"").append(escape(node)).append("\"]")
+                    .append("[\"").append(mermaidLabel(node)).append("\"]")
                     .append(styleClass(node, selection))
                     .append("\n");
         }
@@ -329,8 +329,65 @@ public class JsonlToMermaid {
         }
     }
 
-    private static String escape(String s) {
-        return s.replace("\\", "\\\\").replace("\"", "\\\"");
+    private static String mermaidLabel(String methodId) {
+        int hash = methodId.indexOf('#');
+        int openParen = methodId.indexOf('(', hash + 1);
+        int closeParen = methodId.lastIndexOf(')');
+        if (hash < 0 || openParen < hash || closeParen < openParen) {
+            return escapeLabelText(methodId);
+        }
+
+        String ownerAndMethod = methodId.substring(0, openParen);
+        String paramsRaw = methodId.substring(openParen + 1, closeParen).trim();
+        if (paramsRaw.isEmpty()) {
+            return escapeLabelText(ownerAndMethod) + "()";
+        }
+
+        List<String> params = splitTopLevelParams(paramsRaw);
+        StringBuilder label = new StringBuilder();
+        label.append(escapeLabelText(ownerAndMethod)).append("(<br/>");
+        for (int i = 0; i < params.size(); i++) {
+            if (i > 0) {
+                label.append("<br/>");
+            }
+            label.append(escapeLabelText(params.get(i)));
+            if (i < params.size() - 1) {
+                label.append(",");
+            }
+        }
+        label.append("<br/>)");
+        return label.toString();
+    }
+
+    private static List<String> splitTopLevelParams(String paramsRaw) {
+        List<String> params = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        int angleDepth = 0;
+        for (int i = 0; i < paramsRaw.length(); i++) {
+            char ch = paramsRaw.charAt(i);
+            if (ch == '<') {
+                angleDepth++;
+            } else if (ch == '>' && angleDepth > 0) {
+                angleDepth--;
+            }
+
+            if (ch == ',' && angleDepth == 0) {
+                addTrimmed(params, current);
+                current.setLength(0);
+            } else {
+                current.append(ch);
+            }
+        }
+        addTrimmed(params, current);
+        return params;
+    }
+
+    private static String escapeLabelText(String s) {
+        return s.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;");
     }
 
     private static String unescape(String s) {

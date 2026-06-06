@@ -82,6 +82,8 @@ JAVA_HOME=/path/to/jdk-17 PATH="/path/to/jdk-17/bin:$PATH" \
 > 说明：当前 Mermaid 转换不会单独保留或分类业务包前缀之外的外部调用。需要保留外部调用时，先不要用 `--include-prefix` 过滤，或后续增加可配置外部调用分类。
 > 当前 Mermaid 转换会读取带 `kind` 的 JSONL，但暂不按 `direct` / `hierarchy` 区分线型。
 
+Mermaid 节点会压缩展示长签名：第一行显示完整 `owner#method(`，每个参数单独一行，最后一行显示 `)`。这只影响图上的 label，JSONL、遍历和 `--func` 匹配仍使用完整方法 ID。
+
 ### 3) Mermaid 转 SVG
 
 ```bash
