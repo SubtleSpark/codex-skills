@@ -133,9 +133,15 @@ public class JsonlToMermaid {
             List<String> markPatterns) {
         GraphIndexes indexes = GraphIndexes.from(edges);
         List<String> startFuncs = resolveRequestedFuncs(requestedFuncs, indexes.allNodes);
-        return mode == Mode.UP
-                ? selectUp(indexes.reverse, startFuncs, maxDepth)
-                : selectDown(indexes.forward, startFuncs, maxDepth, cutPatterns, markPatterns);
+        if (mode == Mode.UP) {
+            return selectUp(indexes.reverse, startFuncs, maxDepth);
+        }
+        if (mode == Mode.BOTH) {
+            Selection selection = selectUp(indexes.reverse, startFuncs, maxDepth);
+            selection.addAll(selectDown(indexes.forward, startFuncs, maxDepth, cutPatterns, markPatterns));
+            return selection;
+        }
+        return selectDown(indexes.forward, startFuncs, maxDepth, cutPatterns, markPatterns);
     }
 
     private static Selection selectDown(
@@ -316,7 +322,7 @@ public class JsonlToMermaid {
 
         mmd.append("\n");
         if (!selection.entryNodes.isEmpty()) {
-            mmd.append("  classDef entry fill:#e1bee7,stroke:#7b1fa2,stroke-width:3px,color:#4a148c\n");
+            mmd.append("  classDef entry fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#1e3a8a\n");
         }
         if (!selection.cutNodes.isEmpty()) {
             mmd.append("  classDef cut fill:#ffcccc,stroke:#ff0000,color:#cc0000\n");
@@ -325,7 +331,7 @@ public class JsonlToMermaid {
             mmd.append("  classDef marked fill:#fff3cd,stroke:#ff9800,color:#e65100\n");
         }
         if (!selection.topNodes.isEmpty()) {
-            mmd.append("  classDef top fill:#e1bee7,stroke:#7b1fa2,stroke-width:3px,color:#4a148c\n");
+            mmd.append("  classDef top fill:#f3f4f6,stroke:#6b7280,stroke-width:2px,color:#374151\n");
         }
     }
 
@@ -502,7 +508,8 @@ public class JsonlToMermaid {
 
     private enum Mode {
         DOWN,
-        UP;
+        UP,
+        BOTH;
 
         static Mode parse(String raw) {
             String normalized = raw == null ? "down" : raw.trim().toLowerCase();
@@ -512,7 +519,10 @@ public class JsonlToMermaid {
             if ("up".equals(normalized)) {
                 return UP;
             }
-            throw new IllegalArgumentException("Invalid --mode: " + raw + " (expected down or up)");
+            if ("both".equals(normalized)) {
+                return BOTH;
+            }
+            throw new IllegalArgumentException("Invalid --mode: " + raw + " (expected down, up, or both)");
         }
     }
 
@@ -557,6 +567,17 @@ public class JsonlToMermaid {
             if (edgeKeys.add(edge.key())) {
                 edges.add(edge);
             }
+        }
+
+        void addAll(Selection other) {
+            nodes.addAll(other.nodes);
+            for (Edge edge : other.edges) {
+                addEdge(edge);
+            }
+            entryNodes.addAll(other.entryNodes);
+            cutNodes.addAll(other.cutNodes);
+            markedNodes.addAll(other.markedNodes);
+            topNodes.addAll(other.topNodes);
         }
     }
 

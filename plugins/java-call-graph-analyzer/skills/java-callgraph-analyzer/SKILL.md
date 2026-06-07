@@ -1,15 +1,15 @@
 ---
 name: java-callgraph-analyzer
-description: 手动触发时使用：零入侵分析 Java 源码调用链，生成带 direct/hierarchy 边类型的 JSONL，并按入口方法追踪上游或下游 Mermaid 调用链图。
+description: 手动触发时使用：零入侵分析 Java 源码调用链，生成带 direct/hierarchy 边类型的 JSONL，并按入口方法追踪上游、下游或双向 Mermaid 调用链图。
 ---
 
 # Java Call Graph Analyzer
 
-零入侵方式分析 Java 方法调用链。主流程是先生成 JSONL 调用边索引，再用一个或多个入口方法做上游/下游局部追踪。
+零入侵方式分析 Java 方法调用链。主流程是先生成 JSONL 调用边索引，再用一个或多个入口方法做上游、下游或双向局部追踪。
 
 1. 用 JDK 内置编译器 API 扫描源码并导出带边类型的 `callgraph.jsonl`
 2. 默认补充接口、父类、子类 override 的 hierarchy 实现链路
-3. 传入 `--func`，从指定方法向下或向上生成 Mermaid 调用链图
+3. 传入 `--func`，从指定方法向下、向上或双向生成 Mermaid 调用链图
 4. 按需将 Mermaid 转成 SVG
 
 ## 前置依赖
@@ -54,7 +54,7 @@ JAVA_HOME=/path/to/jdk-17 PATH="/path/to/jdk-17/bin:$PATH" \
 <java-callgraph-analyzer目录>/scripts/jsonl_to_mermaid.sh \
   --input <jsonl文件> \
   --output <mmd输出文件> \
-  [--mode down|up] \
+  [--mode down|up|both] \
   [--func 方法名] \
   [--include-prefix 包前缀] \
   [--max-depth 深度] \
@@ -70,12 +70,12 @@ JAVA_HOME=/path/to/jdk-17 PATH="/path/to/jdk-17/bin:$PATH" \
 |------|------|--------|
 | `--input` | 输入的 callgraph JSONL 文件 | `.tmp/callgraph-java.jsonl` |
 | `--output` | 输出 Mermaid `.mmd` 文件 | `.tmp/callgraph-java.mmd` |
-| `--mode` | `down` 表示“这个方法调用了谁”，`up` 表示“谁调用了这个方法” | `down` |
+| `--mode` | `down` 表示“这个方法调用了谁”，`up` 表示“谁调用了这个方法”，`both` 表示在同一张图里同时展示上游和下游 | `down` |
 | `--func` | 入口/目标方法，多个用逗号分隔；可传完整方法 ID，也可传 `pkg.Type#method` 前缀来匹配重载签名 | 主路径必传 |
 | `--include-prefix` | 只保留 caller 和 callee 都匹配前缀的调用边，多个用逗号分隔 | 不过滤 |
 | `--max-depth` | 从入口/目标开始遍历的最大深度 | `20` |
-| `--cut` | `down` 模式剪枝节点，子串匹配；命中后节点标红且不继续遍历子节点 | - |
-| `--mark` | `down` 模式标记节点，子串匹配；命中节点及其子节点标橙 | - |
+| `--cut` | `down` / `both` 的下游侧剪枝节点，子串匹配；命中后节点标红且不继续遍历子节点 | - |
+| `--mark` | `down` / `both` 的下游侧标记节点，子串匹配；命中节点及其子节点标橙 | - |
 
 不传 `--func` 时会把输入 JSONL 全量转成 Mermaid。大项目通常不建议这样做，除非只是快速检查索引内容。
 
@@ -138,6 +138,15 @@ npx -y -p @mermaid-js/mermaid-cli mmdc ...
   --input .tmp/callgraph-java.jsonl \
   --output .tmp/order-up.mmd \
   --mode up \
+  --func "com.example.order.OrderService#createOrder" \
+  --include-prefix "com.example" \
+  --max-depth 5
+
+# 在同一张图里同时看某个方法的上游调用方和下游被调方法
+<java-callgraph-analyzer目录>/scripts/jsonl_to_mermaid.sh \
+  --input .tmp/callgraph-java.jsonl \
+  --output .tmp/order-both.mmd \
+  --mode both \
   --func "com.example.order.OrderService#createOrder" \
   --include-prefix "com.example" \
   --max-depth 5
