@@ -36,6 +36,15 @@ assert_contains() {
   fi
 }
 
+assert_not_contains() {
+  local unexpected="$1"
+  if grep -Fq "$unexpected" "$OUTPUT_FILE"; then
+    printf 'Unexpected Mermaid fragment found:\n%s\n\nActual output:\n' "$unexpected" >&2
+    sed -n '1,160p' "$OUTPUT_FILE" >&2
+    exit 1
+  fi
+}
+
 assert_line_count() {
   local expected="$1"
   local pattern="$2"
@@ -50,9 +59,10 @@ assert_line_count() {
 
 assert_line_count 1 'flowchart LR'
 assert_contains 'com.example.order.OrderController#create()'
-assert_contains 'com.example.order.OrderService#create(<br/>java.lang.String<br/>)'
-assert_contains 'com.example.order.OrderServiceImpl#create(<br/>java.lang.String<br/>)'
-assert_contains 'com.example.order.OrderServiceImpl#audit(<br/>java.lang.String<br/>)'
+assert_contains 'com.example.order.OrderService#create(<br/>java.lang.String)'
+assert_contains 'com.example.order.OrderServiceImpl#create(<br/>java.lang.String)'
+assert_contains 'com.example.order.OrderServiceImpl#audit(<br/>java.lang.String)'
+assert_not_contains '<br/>)'
 assert_contains 'N2 --> N1'
 assert_contains 'N1 --> N0'
 assert_contains 'N0 --> N3'

@@ -41,6 +41,7 @@ public class JsonlToMermaid {
 
     private static String render(Selection selection) {
         StringBuilder mmd = new StringBuilder();
+        mmd.append("%%{init: {\"themeCSS\": \".node foreignObject div, .nodeLabel, .nodeLabel p { text-align: left !important; }\"}}%%\n");
         mmd.append("flowchart LR\n");
 
         Map<String, String> alias = new LinkedHashMap<>();
@@ -359,9 +360,10 @@ public class JsonlToMermaid {
             label.append(escapeLabelText(params.get(i)));
             if (i < params.size() - 1) {
                 label.append(",");
+            } else {
+                label.append(")");
             }
         }
-        label.append("<br/>)");
         return label.toString();
     }
 

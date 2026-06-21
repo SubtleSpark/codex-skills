@@ -1,6 +1,6 @@
 ---
 name: java-callgraph-analyzer
-description: 手动触发时使用：零入侵分析 Java 源码调用链，生成带 direct/hierarchy 边类型的 JSONL，并按入口方法追踪上游、下游或双向 Mermaid 调用链图。
+description: 手动触发时使用：零入侵分析 Java 源码调用链，生成带 direct/hierarchy 边类型的 JSONL，并按入口方法追踪上游、下游或双向可读 Mermaid 调用链图。
 ---
 
 # Java Call Graph Analyzer
@@ -82,7 +82,7 @@ JAVA_HOME=/path/to/jdk-17 PATH="/path/to/jdk-17/bin:$PATH" \
 > 说明：当前 Mermaid 转换不会单独保留或分类业务包前缀之外的外部调用。需要保留外部调用时，先不要用 `--include-prefix` 过滤，或后续增加可配置外部调用分类。
 > 当前 Mermaid 转换会读取带 `kind` 的 JSONL，但暂不按 `direct` / `hierarchy` 区分线型。
 
-Mermaid 节点会压缩展示长签名：第一行显示完整 `owner#method(`，每个参数单独一行，最后一行显示 `)`。这只影响图上的 label，JSONL、遍历和 `--func` 匹配仍使用完整方法 ID。
+Mermaid 节点会压缩展示长签名并左对齐 label：第一行显示完整 `owner#method(`，每个参数单独一行，右括号跟最后一个参数在同一行。无参方法保持 `owner#method()`。这只影响图上的 label，JSONL、遍历和 `--func` 匹配仍使用完整方法 ID。
 
 ### 3) Mermaid 转 SVG
 

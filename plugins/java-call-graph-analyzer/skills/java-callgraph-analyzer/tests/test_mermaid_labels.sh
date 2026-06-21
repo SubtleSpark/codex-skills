@@ -43,8 +43,10 @@ assert_not_contains() {
   fi
 }
 
-assert_contains 'com.github.acme.order.application.OrderService#create(<br/>com.github.acme.order.model.OrderCommand,<br/>java.util.Map&lt;java.lang.String,com.github.acme.order.model.Item&gt;<br/>)'
+assert_contains 'com.github.acme.order.application.OrderService#create(<br/>com.github.acme.order.model.OrderCommand,<br/>java.util.Map&lt;java.lang.String,com.github.acme.order.model.Item&gt;)'
 assert_contains 'com.github.acme.order.domain.Order#validate()'
 assert_not_contains 'java.util.Map&lt;java.lang.String,<br/>com.github.acme.order.model.Item&gt;'
+assert_not_contains '<br/>)'
+assert_contains '%%{init: {"themeCSS": ".node foreignObject div, .nodeLabel, .nodeLabel p { text-align: left !important; }"}}%%'
 
 printf 'Mermaid label test passed.\n'
