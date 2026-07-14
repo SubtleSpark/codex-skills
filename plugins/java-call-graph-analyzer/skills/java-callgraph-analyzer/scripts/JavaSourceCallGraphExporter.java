@@ -149,6 +149,11 @@ public class JavaSourceCallGraphExporter {
                 + "\",\"kind\":\"" + escape(edge.kind) + "\"}";
     }
 
+    private static String methodJson(MethodDoc method) {
+        return "{\"type\":\"method\",\"id\":\"" + escape(method.id)
+                + "\",\"javadoc\":\"" + escape(method.javadoc) + "\"}";
+    }
+
     private static String escape(String s) {
         return s
                 .replace("\\", "\\\\")
@@ -166,6 +171,7 @@ public class JavaSourceCallGraphExporter {
         private final Set<GraphEdge> directEdges = new LinkedHashSet<>();
         private final Map<String, ExecutableElement> directCalleesById = new LinkedHashMap<>();
         private final Map<String, List<MethodRef>> sourceMethodsByName = new LinkedHashMap<>();
+        private final Map<String, MethodDoc> methodDocs = new LinkedHashMap<>();
         private Set<GraphEdge> cachedHierarchyEdges;
 
         CallGraphCollector(Trees trees, Elements elements, List<String> includePrefixes) {
@@ -183,6 +189,7 @@ public class JavaSourceCallGraphExporter {
                 if (owner != null) {
                     MethodRef method = new MethodRef(methodId, (ExecutableElement) el, owner);
                     addSourceMethodByName(method);
+                    addMethodDoc(method.id, method.element);
                 }
             }
             if (methodId != null) {
@@ -221,6 +228,9 @@ public class JavaSourceCallGraphExporter {
 
         List<String> toJsonlLines() {
             List<String> lines = new ArrayList<>();
+            for (MethodDoc method : methodDocs.values()) {
+                lines.add(methodJson(method));
+            }
             for (GraphEdge edge : allEdges()) {
                 lines.add(edgeJson(edge));
             }
@@ -295,6 +305,26 @@ public class JavaSourceCallGraphExporter {
                 sourceMethodsByName.put(name, methods);
             }
             methods.add(method);
+        }
+
+        private void addMethodDoc(String methodId, ExecutableElement element) {
+            if (!include(methodId) || methodDocs.containsKey(methodId)) {
+                return;
+            }
+            String javadoc = elements.getDocComment(element);
+            if (isBlank(javadoc)) {
+                return;
+            }
+            methodDocs.put(methodId, new MethodDoc(methodId, normalizeDocComment(javadoc)));
+        }
+
+        private static String normalizeDocComment(String javadoc) {
+            String normalized = javadoc.replace("\r\n", "\n").replace('\r', '\n').trim();
+            String[] lines = normalized.split("\n", -1);
+            for (int i = 0; i < lines.length; i++) {
+                lines[i] = lines[i].trim();
+            }
+            return Stream.of(lines).collect(Collectors.joining("\n"));
         }
 
         private boolean include(String methodId) {
@@ -373,6 +403,16 @@ public class JavaSourceCallGraphExporter {
             result = 31 * result + to.hashCode();
             result = 31 * result + kind.hashCode();
             return result;
+        }
+    }
+
+    static final class MethodDoc {
+        final String id;
+        final String javadoc;
+
+        MethodDoc(String id, String javadoc) {
+            this.id = id;
+            this.javadoc = javadoc;
         }
     }
 

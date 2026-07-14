@@ -25,13 +25,16 @@ public class JsonlToMermaid {
         int maxDepth = parseMaxDepth(cli.getOrDefault("max-depth", "20"));
         List<String> cutPatterns = splitList(cli.getOrDefault("cut", ""));
         List<String> markPatterns = splitList(cli.getOrDefault("mark", ""));
+        boolean includeDocs = parseBoolean(cli.getOrDefault("include-docs", "false"), "include-docs");
 
-        List<Edge> edges = filterEdges(readEdges(input), includePrefixes);
+        GraphData graphData = readGraphData(input);
+        List<Edge> edges = filterEdges(graphData.edges, includePrefixes);
         Selection selection = requestedFuncs.isEmpty()
                 ? selectAll(edges, cutPatterns, markPatterns)
                 : selectFocused(edges, mode, requestedFuncs, maxDepth, cutPatterns, markPatterns);
 
-        String mmd = render(selection);
+        Map<String, String> methodDocs = includeDocs ? graphData.methodDocs : Collections.<String, String>emptyMap();
+        String mmd = render(selection, methodDocs);
         if (output.getParent() != null) {
             Files.createDirectories(output.getParent());
         }
@@ -39,7 +42,7 @@ public class JsonlToMermaid {
         System.out.println("Generated Mermaid file: " + output);
     }
 
-    private static String render(Selection selection) {
+    private static String render(Selection selection, Map<String, String> methodDocs) {
         StringBuilder mmd = new StringBuilder();
         mmd.append("%%{init: {\"themeCSS\": \".node foreignObject div, .nodeLabel, .nodeLabel p { text-align: left !important; }\"}}%%\n");
         mmd.append("flowchart LR\n");
@@ -50,7 +53,7 @@ public class JsonlToMermaid {
             String n = "N" + idx++;
             alias.put(node, n);
             mmd.append("  ").append(n)
-                    .append("[\"").append(mermaidLabel(node)).append("\"]")
+                    .append("[\"").append(mermaidLabel(node, methodDocs.get(node))).append("\"]")
                     .append(styleClass(node, selection))
                     .append("\n");
         }
@@ -70,8 +73,8 @@ public class JsonlToMermaid {
         return mmd.toString();
     }
 
-    private static List<Edge> readEdges(Path input) throws Exception {
-        List<Edge> edges = new ArrayList<>();
+    private static GraphData readGraphData(Path input) throws Exception {
+        GraphData graphData = new GraphData();
 
         int lineNumber = 0;
         for (String line : Files.readAllLines(input, StandardCharsets.UTF_8)) {
@@ -80,14 +83,27 @@ public class JsonlToMermaid {
             if (trimmed.isEmpty()) {
                 continue;
             }
+            String type = jsonStringField(trimmed, "type");
+            if ("method".equals(type)) {
+                String id = jsonStringField(trimmed, "id");
+                String javadoc = jsonStringField(trimmed, "javadoc");
+                if (id == null || javadoc == null) {
+                    throw new IllegalArgumentException("Invalid JSONL method metadata at line " + lineNumber + ": " + line);
+                }
+                graphData.methodDocs.put(id, javadoc);
+                continue;
+            }
+            if (type != null && !"edge".equals(type)) {
+                continue;
+            }
             String from = jsonStringField(trimmed, "from");
             String to = jsonStringField(trimmed, "to");
             if (from == null || to == null) {
                 throw new IllegalArgumentException("Invalid JSONL edge at line " + lineNumber + ": " + line);
             }
-            edges.add(new Edge(from, to));
+            graphData.edges.add(new Edge(from, to));
         }
-        return edges;
+        return graphData;
     }
 
     private static String jsonStringField(String json, String key) {
@@ -336,7 +352,15 @@ public class JsonlToMermaid {
         }
     }
 
-    private static String mermaidLabel(String methodId) {
+    private static String mermaidLabel(String methodId, String javadoc) {
+        String methodLabel = methodLabel(methodId);
+        if (isBlank(javadoc)) {
+            return methodLabel;
+        }
+        return javadocLabel(javadoc) + "<br/><br/>" + methodLabel;
+    }
+
+    private static String methodLabel(String methodId) {
         int hash = methodId.indexOf('#');
         int openParen = methodId.indexOf('(', hash + 1);
         int closeParen = methodId.lastIndexOf(')');
@@ -363,6 +387,19 @@ public class JsonlToMermaid {
             } else {
                 label.append(")");
             }
+        }
+        return label.toString();
+    }
+
+    private static String javadocLabel(String javadoc) {
+        String normalized = javadoc.replace("\r\n", "\n").replace('\r', '\n').trim();
+        String[] lines = normalized.split("\n", -1);
+        StringBuilder label = new StringBuilder();
+        for (int i = 0; i < lines.length; i++) {
+            if (i > 0) {
+                label.append("<br/>");
+            }
+            label.append(escapeLabelText(lines[i]));
         }
         return label.toString();
     }
@@ -482,6 +519,21 @@ public class JsonlToMermaid {
         }
     }
 
+    private static boolean parseBoolean(String raw, String name) {
+        String normalized = raw == null ? "false" : raw.trim().toLowerCase();
+        if ("true".equals(normalized) || "yes".equals(normalized) || "1".equals(normalized) || "on".equals(normalized)) {
+            return true;
+        }
+        if ("false".equals(normalized) || "no".equals(normalized) || "0".equals(normalized) || "off".equals(normalized)) {
+            return false;
+        }
+        throw new IllegalArgumentException("Invalid --" + name + ": " + raw + " (expected true or false)");
+    }
+
+    private static boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
+    }
+
     private static Map<String, String> parseArgs(String[] args) {
         Map<String, String> out = new LinkedHashMap<>();
         for (int i = 0; i < args.length; i++) {
@@ -540,6 +592,11 @@ public class JsonlToMermaid {
         String key() {
             return from + "\u0000" + to;
         }
+    }
+
+    private static final class GraphData {
+        final List<Edge> edges = new ArrayList<>();
+        final Map<String, String> methodDocs = new LinkedHashMap<>();
     }
 
     private static final class QueueItem {
