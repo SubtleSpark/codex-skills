@@ -1,0 +1,15 @@
+{
+  "name": "session-archive-checker",
+  "version": "0.1.0",
+  "description": "Review the current Codex session and workspace for unfinished work before archiving.",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Session Archive Checker",
+    "shortDescription": "Check whether a Codex session is ready to archive",
+    "developerName": "jun",
+    "category": "Productivity",
+    "capabilities": [
+      "Read"
+    ]
+  }
+}
