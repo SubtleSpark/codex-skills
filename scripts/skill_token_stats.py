@@ -38,12 +38,14 @@ def main() -> None:
 
         name = metadata.get("name") or path.parent.name
         description = metadata.get("description")
+        if not isinstance(name, str) or not name.strip():
+            raise ValueError(f"{path}: name must be a non-empty string")
         if not isinstance(description, str) or not description.strip():
             raise ValueError(f"{path}: description must be a non-empty string")
 
         rows.append(
             {
-                "name": str(name),
+                "name": name,
                 "path": path.as_posix(),
                 "skill_tokens": count_tokens(encoding, text),
                 "description_tokens": count_tokens(encoding, description),
