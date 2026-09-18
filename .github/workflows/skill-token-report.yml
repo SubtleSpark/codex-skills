@@ -1,0 +1,50 @@
+name: Update skill token report
+
+on:
+  push:
+    branches-ignore:
+      - main
+    paths:
+      - "plugins/**/SKILL.md"
+      - "scripts/skill_token_stats.py"
+      - ".github/workflows/skill-token-report.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: skill-token-report-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  update-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install tokenizer dependencies
+        run: pip install tiktoken==0.11.0 PyYAML==6.0.2
+
+      - name: Generate report
+        run: python scripts/skill_token_stats.py
+
+      - name: Commit report if changed
+        shell: bash
+        run: |
+          if [[ -z "$(git status --porcelain -- SKILL_TOKEN_REPORT.md)" ]]; then
+            echo "Skill token report is already up to date."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add SKILL_TOKEN_REPORT.md
+          git commit -m "chore: update skill token report"
+          git push
