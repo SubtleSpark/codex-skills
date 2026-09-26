@@ -1,0 +1,23 @@
+{
+  "name": "knowledge-pr",
+  "version": "0.1.0",
+  "description": "Manually curate current task knowledge into a pull request for the same knowledge base.",
+  "author": {
+    "name": "jun"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Knowledge PR",
+    "shortDescription": "Manually turn current task knowledge into a PR",
+    "longDescription": "仅手动触发，整理当前知识库 Worktree 中本次任务的知识，对照最新主库检查文本与知识冲突，提交 PR 后结束。支持跨机器复用。",
+    "developerName": "jun",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "使用 $knowledge-pr，将本次任务相关知识整理为当前知识库的 PR。"
+    ]
+  }
+}

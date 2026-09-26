@@ -1,0 +1,6 @@
+interface:
+  display_name: "Knowledge PR"
+  short_description: "Manually curate task knowledge into a focused PR"
+  default_prompt: "使用 $knowledge-pr，将本次任务相关知识整理为当前知识库的 PR。"
+policy:
+  allow_implicit_invocation: false

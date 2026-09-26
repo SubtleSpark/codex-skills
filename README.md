@@ -7,6 +7,7 @@
 - marketplace：`codex-skills`
 - plugin：`Go Call Graph Analyzer`（`go-call-graph-analyzer`）
 - plugin：`Java Call Graph Analyzer`（`java-call-graph-analyzer`）
+- plugin：`Knowledge PR`（`knowledge-pr`）
 
 ## 安装
 
@@ -44,11 +45,16 @@ codex-skills/
     │   └── skills/callgraph-analyzer/
     │       ├── SKILL.md
     │       └── ...
-    └── java-call-graph-analyzer/
+    ├── java-call-graph-analyzer/
+    │   ├── .codex-plugin/plugin.json
+    │   └── skills/java-callgraph-analyzer/
+    │       ├── SKILL.md
+    │       └── ...
+    └── knowledge-pr/
         ├── .codex-plugin/plugin.json
-        └── skills/java-callgraph-analyzer/
+        └── skills/knowledge-pr/
             ├── SKILL.md
-            └── ...
+            └── agents/openai.yaml
 ```
 
 ## 当前对象
@@ -58,3 +64,21 @@ codex-skills/
 - plugin：`java-call-graph-analyzer`
 - skill：`callgraph-analyzer`
 - skill：`java-callgraph-analyzer`
+- plugin：`knowledge-pr`
+- skill：`knowledge-pr`
+
+## 知识回流
+
+`Knowledge PR` 仅手动触发，从当前知识库及其 Worktree 的本次任务成果中选择性提炼知识，向同一知识库提交 PR。
+
+安装该 plugin 后，可手动调用：
+
+```text
+使用 $knowledge-pr，将本次任务相关知识整理为当前知识库的 PR。
+```
+
+流程：整理当前任务相关知识 → 对照最新主库与相关 PR → 检查文本与知识冲突 → 提交 PR → 结束。没有合适增量时直接结束。
+
+Skill 不扫描整个工作树的历史积累，不在任务结束时自动运行，不自动合并或跟踪 PR，也不自动同步或清理源工作树。扩大材料范围、合并及同步需要另外明确要求。机器路径、远端主仓库与目标分支在运行时核对。
+
+Skill 的 `agents/openai.yaml` 设置 `allow_implicit_invocation: false`，禁用隐式调用。
