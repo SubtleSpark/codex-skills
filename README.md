@@ -53,7 +53,8 @@ codex-skills/
     └── knowledge-pr/
         ├── .codex-plugin/plugin.json
         └── skills/knowledge-pr/
-            └── SKILL.md
+            ├── SKILL.md
+            └── agents/openai.yaml
 ```
 
 ## 当前对象
@@ -68,14 +69,16 @@ codex-skills/
 
 ## 知识回流
 
-`Knowledge PR` 将任务成果整理为目标知识库的 PR，支持从长期工作树选择性贡献知识。
+`Knowledge PR` 仅手动触发，从当前知识库及其 Worktree 的本次任务成果中选择性提炼知识，向同一知识库提交 PR。
 
-安装该 plugin 后，可请求：
+安装该 plugin 后，可手动调用：
 
 ```text
-使用 $knowledge-pr，将本次任务中值得共享的知识整理并提交到目标知识库。
+使用 $knowledge-pr，将本次任务相关知识整理为当前知识库的 PR。
 ```
 
-Skill 根据当前任务识别目标仓库，读取其规则、最新目标分支和相关 PR，在贡献分支上整合知识，并检查文本冲突和知识冲突。也可以只要求整理候选变更。
+流程：整理当前任务相关知识 → 对照最新主库与相关 PR → 检查文本与知识冲突 → 提交 PR → 结束。没有合适增量时直接结束。
 
-源工作树可以继续使用；提交 PR 不自动合并 PR、同步或清理源工作树。Skill 不绑定固定机器路径，也不自带凭据或工具安装步骤。
+Skill 不扫描整个工作树的历史积累，不在任务结束时自动运行，不自动合并或跟踪 PR，也不自动同步或清理源工作树。扩大材料范围、合并及同步需要另外明确要求。机器路径、远端主仓库与目标分支在运行时核对。
+
+Skill 的 `agents/openai.yaml` 设置 `allow_implicit_invocation: false`，禁用隐式调用。
