@@ -7,6 +7,7 @@
 - marketplace：`codex-skills`
 - plugin：`Go Call Graph Analyzer`（`go-call-graph-analyzer`）
 - plugin：`Java Call Graph Analyzer`（`java-call-graph-analyzer`）
+- plugin：`Knowledge PR`（`knowledge-pr`）
 
 ## 安装
 
@@ -44,11 +45,15 @@ codex-skills/
     │   └── skills/callgraph-analyzer/
     │       ├── SKILL.md
     │       └── ...
-    └── java-call-graph-analyzer/
+    ├── java-call-graph-analyzer/
+    │   ├── .codex-plugin/plugin.json
+    │   └── skills/java-callgraph-analyzer/
+    │       ├── SKILL.md
+    │       └── ...
+    └── knowledge-pr/
         ├── .codex-plugin/plugin.json
-        └── skills/java-callgraph-analyzer/
-            ├── SKILL.md
-            └── ...
+        └── skills/knowledge-pr/
+            └── SKILL.md
 ```
 
 ## 当前对象
@@ -58,3 +63,19 @@ codex-skills/
 - plugin：`java-call-graph-analyzer`
 - skill：`callgraph-analyzer`
 - skill：`java-callgraph-analyzer`
+- plugin：`knowledge-pr`
+- skill：`knowledge-pr`
+
+## 知识回流
+
+`Knowledge PR` 将任务成果整理为目标知识库的 PR，支持从长期工作树选择性贡献知识。
+
+安装该 plugin 后，可请求：
+
+```text
+使用 $knowledge-pr，将本次任务中值得共享的知识整理并提交到目标知识库。
+```
+
+Skill 根据当前任务识别目标仓库，读取其规则、最新目标分支和相关 PR，在贡献分支上整合知识，并检查文本冲突和知识冲突。也可以只要求整理候选变更。
+
+源工作树可以继续使用；提交 PR 不自动合并 PR、同步或清理源工作树。Skill 不绑定固定机器路径，也不自带凭据或工具安装步骤。

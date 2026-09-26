@@ -1,0 +1,23 @@
+{
+  "name": "knowledge-pr",
+  "version": "0.1.0",
+  "description": "Curate reusable task knowledge into focused knowledge-base pull requests.",
+  "author": {
+    "name": "jun"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Knowledge PR",
+    "shortDescription": "Turn task knowledge into focused pull requests",
+    "longDescription": "整合任务成果与最新知识库，检查文本和知识冲突，提交范围明确的 PR。读取目标仓库规则与实际 Git 上下文，支持跨机器复用。",
+    "developerName": "jun",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "使用 $knowledge-pr，将本次任务中值得共享的知识整理并提交到目标知识库。"
+    ]
+  }
+}
