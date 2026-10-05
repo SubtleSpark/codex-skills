@@ -1,0 +1,23 @@
+plugins/session-archive-checker/skills/session-archive-checker/SKILL.md
+  s_205ade35ac3083::t_db7968eaa9575e 10-11,21,29-38,40,84
+plugins/session-archive-checker/skills/session-archive-checker/references/examples.md
+  s_205ade35ac3083::t_db7968eaa9575e 21-28
+SKILL_TOKEN_REPORT.md
+  s_205ade35ac3083::t_acb60be2f2bad3 12,14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2970716bfcdc3ceef39b1fe3696f8738e975a8a9",
+  "prompts": {},
+  "sessions": {
+    "s_205ade35ac3083": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10ce1-2b63-74f0-bfc1-650404fc1549",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "huangcj <1411187249@qq.com>"
+    }
+  }
+}
