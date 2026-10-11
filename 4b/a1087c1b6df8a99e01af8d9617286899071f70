@@ -1,0 +1,25 @@
+plugins/session-archive-checker/.codex-plugin/plugin.json
+  s_7074df7f1e2af1::t_12e10f7ef15dce 3
+plugins/session-archive-checker/skills/session-archive-checker/agents/openai.yaml
+  s_7074df7f1e2af1::t_12e10f7ef15dce 2
+plugins/session-archive-checker/skills/session-archive-checker/SKILL.md
+  s_7074df7f1e2af1::t_12e10f7ef15dce 3
+SKILL_TOKEN_REPORT.md
+  s_7074df7f1e2af1::t_cf9baaf3f03e4d 12,14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4ba1087c1b6df8a99e01af8d9617286899071f70",
+  "prompts": {},
+  "sessions": {
+    "s_7074df7f1e2af1": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a129c3-ae40-7cc3-af33-bb28b7113d7a",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "huangcj <1411187249@qq.com>"
+    }
+  }
+}
