@@ -1,6 +1,6 @@
 ---
 name: session-archive-checker
-description: 在用户明确要求“这个会话能归档吗”“归档前检查”或手动调用本 Skill 时使用。检查当前 session 的未完结事项、任务产生的临时文件及相关 Git 变更，只给出 archive 建议和待处理清单，不执行清理或 archive。
+description: 在用户询问“这个会话能归档吗”或要求归档前检查时使用。检查当前 session 的未完结事项、任务产生的临时文件及相关 Git 变更，只给出 archive 建议和待处理清单，不执行清理或 archive。
 ---
 
 # Session 归档前检查
