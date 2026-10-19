@@ -1,0 +1,31 @@
+plugins/video-to-ppt/skills/video-to-ppt/agents/openai.yaml
+  s_0b2f36834d8dbc::t_29d20bfd170b5d 1-6
+plugins/video-to-ppt/skills/video-to-ppt/SKILL.md
+  s_0b2f36834d8dbc::t_29d20bfd170b5d 1-48
+plugins/video-to-ppt/.codex-plugin/plugin.json
+  s_0b2f36834d8dbc::t_29d20bfd170b5d 1-14
+plugins/video-to-ppt/skills/video-to-ppt/scripts/extract_frames.py
+  s_0b2f36834d8dbc::t_6de557d45ffe18 1-149
+plugins/video-to-ppt/skills/video-to-ppt/references/download.md
+  s_0b2f36834d8dbc::t_29d20bfd170b5d 1-28
+.agents/plugins/marketplace.json
+  s_0b2f36834d8dbc::t_1eaba0ff20f138 66-77
+README.md
+  s_0b2f36834d8dbc::t_8cbce3caa66fb5 85-94
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0e1ac6bf06baf19961a46c935342606eda22cc50",
+  "prompts": {},
+  "sessions": {
+    "s_0b2f36834d8dbc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1550a-fee3-7ef2-89ed-70ca85bda955",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "huangcj <1411187249@qq.com>"
+    }
+  }
+}
