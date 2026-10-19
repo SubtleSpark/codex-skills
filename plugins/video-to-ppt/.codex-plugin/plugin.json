@@ -1,0 +1,14 @@
+{
+  "name": "video-to-ppt",
+  "version": "0.1.0",
+  "description": "Download videos and optional subtitles, then restore existing slide images as PowerPoint pages.",
+  "author": {"name": "jun"},
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "视频课件转 PPT",
+    "shortDescription": "下载视频、可用字幕并将原有课件画面整理为图片 PPT",
+    "developerName": "jun",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"]
+  }
+}
