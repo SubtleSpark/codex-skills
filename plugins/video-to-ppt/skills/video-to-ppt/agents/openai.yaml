@@ -1,0 +1,6 @@
+interface:
+  display_name: "视频课件转 PPT"
+  short_description: "下载视频和可用字幕，提取并核对原有课件画面后按页还原为图片 PPT"
+  default_prompt: "使用 $video-to-ppt 下载这个视频和可用字幕，将其中原有课件画面还原成图片 PPT。"
+policy:
+  allow_implicit_invocation: true
