@@ -85,10 +85,12 @@ Skill 的 `agents/openai.yaml` 设置 `allow_implicit_invocation: false`，禁�
 
 ## 视频课件转 PPT
 
-`video-to-ppt` 下载视频及可用字幕，提取视频中已有课件画面，经看图核对后按播放顺序整理成图片型 `.pptx`。没有字幕时跳过字幕，继续视频和 PPT；不自动转写，也不把课件重写成总结。
+`video-to-ppt` 默认每5秒完整采样，要求当前帧与原始前、后邻帧的960×540灰度SSIM均≥0.995筛出稳定图，再按64位pHash≤1且dHash≤2、后置SSIM≥0.995依次去重，保留首次合格帧输出PDF或PPT。首尾默认排除，全部原图、邻接得分、拒绝原因及阶段归属均保存；不加载AI决定。短展示或持续变化的真实页可能被稳定性排除，三个采样点相似不证明中间连续10秒稳定。
 
 ```text
-使用 $video-to-ppt 下载这个视频和可用字幕，把原有课件画面还原成图片 PPT，保存到指定目录。
+使用 $video-to-ppt 每5秒采样，按原始前后邻帧SSIM筛稳定页，再经双哈希和SSIM去重，导出首次合格顺序PDF。
 ```
 
-第三方下载、抽帧、PPT 制作或渲染能力按需检查。缺失时提示安装项并停止，不自动安装、升级或拉取运行时。附带的 Python 标准库脚本生成候选 PNG、时间戳清单和看图页面；自动抽帧之后仍需检查漏页、动画及细微变化。
+默认入口是 `plugins/video-to-ppt/skills/video-to-ppt/scripts/auto_pdf.py`，需要现有 ffmpeg/ffprobe、Python 3.12+、NumPy、Pillow、ReportLab、pypdf及scikit-image。缺失时提示并停止，不自动安装或拉取运行时。提高哈希阈值或降低去重SSIM阈值会更激进；提高稳定性阈值会排除更多帧。固定采样和感知哈希都可能漏掉不同内容，自动结果不宣称恢复全部原课件。
+
+回归验证：使用已有上述依赖的Python执行 `python -B -m unittest discover -s plugins/video-to-ppt/skills/video-to-ppt/tests -v`；不需要真实视频或AI决策。
