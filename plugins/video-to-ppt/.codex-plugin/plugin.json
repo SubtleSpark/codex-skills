@@ -1,14 +1,19 @@
 {
   "name": "video-to-ppt",
-  "version": "0.1.0",
-  "description": "Download videos and optional subtitles, then restore existing slide images as PowerPoint pages.",
-  "author": {"name": "jun"},
+  "version": "0.6.1",
+  "description": "Sample video, require stability against both original neighbours, deduplicate with dual hashes and SSIM, and export first-qualified frames.",
+  "author": {
+    "name": "jun"
+  },
   "skills": "./skills/",
   "interface": {
     "displayName": "视频课件转 PPT",
-    "shortDescription": "下载视频、可用字幕并将原有课件画面整理为图片 PPT",
+    "shortDescription": "固定抽帧、稳定性筛选和双哈希及SSIM去重，输出PDF或PPT",
     "developerName": "jun",
     "category": "Productivity",
-    "capabilities": ["Read", "Write"]
+    "capabilities": [
+      "Read",
+      "Write"
+    ]
   }
 }

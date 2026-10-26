@@ -1,6 +1,6 @@
 interface:
   display_name: "视频课件转 PPT"
-  short_description: "下载视频和可用字幕，提取并核对原有课件画面后按页还原为图片 PPT"
-  default_prompt: "使用 $video-to-ppt 下载这个视频和可用字幕，将其中原有课件画面还原成图片 PPT。"
+  short_description: "每5秒抽图，原始邻帧筛稳定页，再双哈希和SSIM去重输出PDF或PPT"
+  default_prompt: "使用 $video-to-ppt 每5秒采样，要求原始前后邻帧SSIM均≥0.995筛稳定图，再以pHash≤1且dHash≤2及SSIM≥0.995去重；保留首次合格代表，输出PDF或PPT及完整映射，不用AI语义删图。"
 policy:
   allow_implicit_invocation: true
