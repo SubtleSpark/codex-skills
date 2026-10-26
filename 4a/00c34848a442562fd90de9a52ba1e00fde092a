@@ -1,0 +1,38 @@
+README.md
+  h_e1e61ddab93292 88,91,94-96
+plugins/video-to-ppt/.codex-plugin/plugin.json
+  h_e1e61ddab93292 3-7,11,14-17
+plugins/video-to-ppt/skills/video-to-ppt/SKILL.md
+  h_e1e61ddab93292 3,8,10,12,14,16,18-20,22,24-26,28,30,32,34
+plugins/video-to-ppt/skills/video-to-ppt/agents/openai.yaml
+  h_e1e61ddab93292 3-4
+plugins/video-to-ppt/skills/video-to-ppt/references/runtime.md
+  h_e1e61ddab93292 1-67
+plugins/video-to-ppt/skills/video-to-ppt/scripts/auto_pdf.py
+  h_e1e61ddab93292 1-602
+plugins/video-to-ppt/skills/video-to-ppt/scripts/ssim_audit.py
+  h_e1e61ddab93292 1-139
+plugins/video-to-ppt/skills/video-to-ppt/scripts/stability_filter.py
+  h_e1e61ddab93292 1-131
+plugins/video-to-ppt/skills/video-to-ppt/tests/test_auto_pdf.py
+  h_e1e61ddab93292 1-213
+plugins/video-to-ppt/skills/video-to-ppt/tests/test_exports.py
+  h_e1e61ddab93292 4-6,8,10-12,15-24,26-28,30,32-38,40-46,48-59,61-75,78-79
+plugins/video-to-ppt/skills/video-to-ppt/tests/test_ssim_audit.py
+  h_e1e61ddab93292 1-171
+plugins/video-to-ppt/skills/video-to-ppt/tests/test_stability.py
+  h_e1e61ddab93292 1-150
+plugins/video-to-ppt/skills/video-to-ppt/tests/test_video_timeline.py
+  h_e1e61ddab93292 1-92
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4a00c34848a442562fd90de9a52ba1e00fde092a",
+  "prompts": {},
+  "humans": {
+    "h_e1e61ddab93292": {
+      "author": "huangcj <1411187249@qq.com>"
+    }
+  }
+}
