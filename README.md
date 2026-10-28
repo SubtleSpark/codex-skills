@@ -8,6 +8,7 @@
 - plugin：`Go Call Graph Analyzer`（`go-call-graph-analyzer`）
 - plugin：`Java Call Graph Analyzer`（`java-call-graph-analyzer`）
 - plugin：`Knowledge PR`（`knowledge-pr`）
+- plugin：`Session Archive Checker`（`session-archive-checker`，含检查和尝试归档两个 Skill）
 
 ## 安装
 
@@ -50,6 +51,14 @@ codex-skills/
     │   └── skills/java-callgraph-analyzer/
     │       ├── SKILL.md
     │       └── ...
+    ├── session-archive-checker/
+    │   ├── .codex-plugin/plugin.json
+    │   └── skills/
+    │       ├── session-archive-checker/SKILL.md
+    │       └── try-archive/
+    │           ├── SKILL.md
+    │           ├── agents/openai.yaml
+    │           └── references/examples.md
     └── knowledge-pr/
         ├── .codex-plugin/plugin.json
         └── skills/knowledge-pr/
@@ -66,6 +75,9 @@ codex-skills/
 - skill：`java-callgraph-analyzer`
 - plugin：`knowledge-pr`
 - skill：`knowledge-pr`
+- plugin：`session-archive-checker`
+- skill：`session-archive-checker`
+- skill：`try-archive`
 
 ## 知识回流
 
@@ -94,3 +106,16 @@ Skill 的 `agents/openai.yaml` 设置 `allow_implicit_invocation: false`，禁�
 默认入口是 `plugins/video-to-ppt/skills/video-to-ppt/scripts/auto_pdf.py`，需要现有 ffmpeg/ffprobe、Python 3.12+、NumPy、Pillow、ReportLab、pypdf及scikit-image。缺失时提示并停止，不自动安装或拉取运行时。提高哈希阈值或降低去重SSIM阈值会更激进；提高稳定性阈值会排除更多帧。固定采样和感知哈希都可能漏掉不同内容，自动结果不宣称恢复全部原课件。
 
 回归验证：使用已有上述依赖的Python执行 `python -B -m unittest discover -s plugins/video-to-ppt/skills/video-to-ppt/tests -v`；不需要真实视频或AI决策。
+
+## 会话检查与尝试归档
+
+安装 `Session Archive Checker` 即包含两个 Skill，无需分别安装：
+
+- `$session-archive-checker`：只检查并给建议，不清理、不执行归档；原有标题标记规则不变。
+- `$try-archive`：先读取同插件的检查 Skill，完整检查通过后，清理明确安全的本次临时项，复查后直接归档当前会话。
+
+```text
+使用 $try-archive，处理安全的临时文件，检查通过后直接归档当前会话。
+```
+
+`try-archive` 设置 `allow_implicit_invocation: false`，仅明确调用，不会因问“能归档吗”就执行。未提交代码、有用途的文件及不能安全判断的可选项会保留，不自动 commit、push 或合并 PR。存在未完成事项或关键疑问时停止；环境不支持正式归档能力时不清理、不伪装成功。检查规则通过相对路径引用原 Skill，不维护第二份标准。
