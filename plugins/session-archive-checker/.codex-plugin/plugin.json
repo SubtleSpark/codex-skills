@@ -1,15 +1,16 @@
 {
   "name": "session-archive-checker",
-  "version": "0.1.1",
-  "description": "Review the current Codex session and workspace for unfinished work before archiving.",
+  "version": "0.2.1",
+  "description": "Check session readiness; explicitly use try-archive to clean safe temporary files and archive the current session.",
   "skills": "./skills/",
   "interface": {
     "displayName": "Session Archive Checker",
-    "shortDescription": "Check whether a Codex session is ready to archive",
+    "shortDescription": "Check readiness or safely clean up and archive a session",
     "developerName": "jun",
     "category": "Productivity",
     "capabilities": [
-      "Read"
+      "Read",
+      "Write"
     ]
   }
 }
