@@ -1,5 +1,4 @@
 interface:
-  display_name: "尝试归档"
   short_description: "复用归档检查，清理安全临时项，通过后直接归档"
   default_prompt: "使用 $try-archive，检查本次会话，清理明确安全的非阻塞临时项，复查通过后直接归档当前会话。"
 policy:
