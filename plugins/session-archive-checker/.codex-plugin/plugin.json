@@ -1,6 +1,6 @@
 {
   "name": "session-archive-checker",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Check session readiness; explicitly use try-archive to clean safe temporary files and archive the current session.",
   "skills": "./skills/",
   "interface": {
